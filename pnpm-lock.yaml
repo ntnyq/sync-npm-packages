@@ -17,6 +17,9 @@ importers:
       tinyrainbow:
         specifier: ^1.2.0
         version: 1.2.0
+      unconfig:
+        specifier: ^0.6.0
+        version: 0.6.0
     devDependencies:
       '@ntnyq/eslint-config':
         specifier: ^3.11.0

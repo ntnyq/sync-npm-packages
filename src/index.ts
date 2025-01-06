@@ -141,3 +141,6 @@ export async function syncNpmPackagesAuto(options: DetectOptions & SyncOptions) 
   const packages = await getValidPackageNames(options)
   return syncNpmPackages(packages, options)
 }
+
+export * from './types'
+export * from './config'

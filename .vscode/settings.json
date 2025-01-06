@@ -28,6 +28,7 @@
     "lcov",
     "npmmirror",
     "pnpm",
+    "unconfig",
     "vite",
     "vitest"
   ],

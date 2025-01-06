@@ -51,6 +51,11 @@ export type Options = DetectOptions &
   }
 
 /**
+ * All property is optional
+ */
+export type OptionalOptions = Partial<Options>
+
+/**
  * partial of package.json type
  */
 export interface PackageJson {

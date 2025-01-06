@@ -3,7 +3,7 @@ import { cac } from 'cac'
 import c from 'tinyrainbow'
 import { version } from '../package.json'
 import { assertSyncTarget } from './utils'
-import { getValidPackageNames, syncNpmPackages } from '.'
+import { getValidPackageNames, resolveConfig, syncNpmPackages } from '.'
 import type { Options } from './types'
 
 const cli = cac('sync-npm-packages')
@@ -20,13 +20,20 @@ cli
 
 cli.command('').action(async (options: Options) => {
   try {
-    assertSyncTarget(options.target)
+    // TODO: defaultIgnore is default to true
+    if (options.defaultIgnore) {
+      delete options.defaultIgnore
+    }
+
+    const resolvedConfig = await resolveConfig(options)
+
+    assertSyncTarget(resolvedConfig.target)
 
     console.log()
     console.log(`${c.bold(c.magenta('sync-npm-packages'))} ${c.dim(`v${version}`)}`)
     console.log(c.dim('--------------'))
 
-    const packages = await getValidPackageNames(options)
+    const packages = await getValidPackageNames(resolvedConfig)
 
     if (!packages.length) {
       console.log(c.red('No packages founded.'))
@@ -44,14 +51,15 @@ cli.command('').action(async (options: Options) => {
       console.log()
     }
 
-    if (options.dry) {
+    if (resolvedConfig.dry) {
       console.log()
       console.log(c.yellow('Dry run, sync is skiped.'))
       printPackages()
       return
     }
 
-    await syncNpmPackages(packages, options)
+    // target has been asserted before
+    await syncNpmPackages(packages, resolvedConfig as Options)
 
     console.log(c.green('Sync successfully!'))
   } catch (err) {

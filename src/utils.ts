@@ -12,8 +12,8 @@ export function isValidPublicPackage(packageJson: PackageJson) {
 
 export const SUPPORTED_TARGETS = ['npmmirror']
 
-export function assertSyncTarget(target: string) {
-  if (!SUPPORTED_TARGETS.includes(target)) {
+export function assertSyncTarget(target?: string) {
+  if (!target || !SUPPORTED_TARGETS.includes(target)) {
     throw new Error(`Required option target to be one of ${JSON.stringify(SUPPORTED_TARGETS)}`)
   }
 }

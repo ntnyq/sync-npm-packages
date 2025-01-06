@@ -57,6 +57,36 @@ await syncNpmPackagesAuto({
 })
 ```
 
+## Config file
+
+`sync-npm-packages` uses [antfu-collective/unconfig](https://github.com/antfu-collective/unconfig) as the config loader, it will resolve files below by order:
+
+- `sync.config.ts`
+- `sync.config.mts`
+- `sync.config.cts`
+- `sync.config.js`
+- `sync.config.mjs`
+- `sync.config.cjs`
+- `.syncrc.json`
+- `.syncrc`
+- property `sync` in `package.json`
+
+All properties of `Options` are supported and optional.
+
+Example:
+
+```ts
+// sync.config.ts
+import { defineConfig } from 'sync-npm-packages'
+
+export default defineConfig({
+  target: 'npmmirror',
+  defaultIgnore: false,
+})
+```
+
+When config file and cli options are both provided, cli options would take a higher priority.
+
 ## Cli
 
 In package.json, if installed as a devDependency, `npx` can be emited.

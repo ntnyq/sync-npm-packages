@@ -12,6 +12,13 @@ export interface DetectOptions {
    * @default []
    */
   ignore?: string | string[]
+
+  /**
+   * Use built-in default ignore patterns
+   *
+   * @default true
+   */
+  defaultIgnore?: boolean
 }
 
 export interface SyncOptions {

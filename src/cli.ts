@@ -14,6 +14,7 @@ cli
   .option('--cwd [cwd]', 'Current working directory')
   .option('--target [target]', 'The mirror site preset')
   .option('--ignore [ignore]', 'Ignore package.json pattern')
+  .option('--no-default-ignore', 'Disable default ignore patterns')
   .option('--dry', 'Dry run')
   .help()
 

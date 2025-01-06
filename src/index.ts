@@ -5,8 +5,27 @@ import { glob } from 'tinyglobby'
 import { assertSyncTarget, isValidPublicPackage, toArray } from './utils'
 import type { DetectOptions, PackageJson, SyncOptions } from './types'
 
-const DEFAULT_IGNORE = ['**/.git/**', '**/node_modules/**']
+/**
+ * node_modules must be ignored
+ */
+const IGNORE_NODE_MODULES = '**/node_modules/**'
 
+/**
+ * default patterns to be ignored
+ */
+const DEFAULT_IGNORE = [
+  IGNORE_NODE_MODULES,
+  '**/.git/**',
+  '**/docs/**',
+  '**/tests/**',
+  '**/examples/**',
+  '**/fixtures/**',
+  '**/playground/**',
+]
+
+/**
+ * glob pattern to match package.json files
+ */
 const GLOB_PACKAGE_JSON = '**/package.json'
 
 /**
@@ -50,10 +69,10 @@ async function syncPackage2NpmMirror(packageName: string) {
  * import { syncNpmPackages } from 'sync-npm-packages'
  *
  * // single package
- * await syncNpmPackages('package-foobar')
+ * await syncNpmPackages('package-foobar', { target: 'npmmirror' })
  *
  * // multiple packages
- * await syncNpmPackages(['package-foo', 'package-bar'])
+ * await syncNpmPackages(['package-foo', 'package-bar'], { target: 'npmmirror' })
  * ```
  */
 export async function syncNpmPackages(input: string | string[], options: SyncOptions) {
@@ -71,8 +90,19 @@ export async function syncNpmPackages(input: string | string[], options: SyncOpt
  * @returns a Promise with valid package names
  */
 export async function getValidPackageNames(options: DetectOptions = {}) {
-  const { cwd = process.cwd(), ignore: userIgnore = [] } = options
-  const ignore = [...toArray(userIgnore), ...DEFAULT_IGNORE]
+  const {
+    cwd = process.cwd(),
+    defaultIgnore: useDefaultIgnore = true,
+    ignore: userIgnore = [],
+  } = options
+  const ignore = toArray(userIgnore)
+
+  if (useDefaultIgnore) {
+    ignore.push(...DEFAULT_IGNORE)
+  } else {
+    ignore.push(IGNORE_NODE_MODULES)
+  }
+
   const files = await glob(GLOB_PACKAGE_JSON, {
     cwd,
     ignore,
@@ -102,7 +132,7 @@ export async function getValidPackageNames(options: DetectOptions = {}) {
  * ```ts
  * import { syncNpmPackagesAuto } from 'sync-npm-packages'
  *
- * await syncNpmPackagesAuto()
+ * await syncNpmPackagesAuto({ target: 'npmmirror' })
  * ```
  */
 export async function syncNpmPackagesAuto(options: DetectOptions & SyncOptions) {

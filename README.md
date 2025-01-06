@@ -150,6 +150,13 @@ export interface DetectOptions {
    * @default []
    */
   ignore?: string | string[]
+
+  /**
+   * Use built-in default ignore patterns
+   *
+   * @default true
+   */
+  defaultIgnore?: boolean
 }
 
 export interface SyncOptions {
@@ -168,6 +175,20 @@ export interface SyncOptions {
   debug?: boolean
 }
 ```
+
+## Additional
+
+### Default ignore patterns
+
+- `**/node_modules/**`
+- `**/.git/**`
+- `**/docs/**`
+- `**/tests/**`
+- `**/examples/**`
+- `**/fixtures/**`
+- `**/playground/**`
+
+Use `--no-default-ignore` in cli or `defaultIgnore: false` in NodeJS API to disable all default ignore patterns except \***\*/node_modules/\*\***.
 
 ## Credits
 

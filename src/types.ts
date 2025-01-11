@@ -23,7 +23,7 @@ export interface DetectOptions {
 
 export interface SyncOptions {
   /**
-   * Sync target mirror set
+   * Target mirror site to sync
    *
    * @requires
    */

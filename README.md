@@ -73,6 +73,38 @@ await syncNpmPackagesAuto({
 
 All properties of `Options` are supported and optional.
 
+<details>
+<summary>JSON schema for json format config</summary>
+
+### .syncrc.json
+
+Config in `.syncrc.json`
+
+```json
+{
+  "$schema": "https://unpkg.com/sync-npm-packages/schemas/syncrc.json"
+}
+```
+
+### package.json
+
+Config in `.vscode/setting.json`:
+
+```json
+{
+  "json.schemas": [
+    {
+      "fileMatch": ["package.json"],
+      "url": "https://unpkg.com/sync-npm-packages/schemas/package-json.json"
+    }
+  ]
+}
+```
+
+</details>
+
+<br>
+
 Example:
 
 ```ts
@@ -85,7 +117,8 @@ export default defineConfig({
 })
 ```
 
-When config file and cli options are both provided, cli options would take a higher priority.
+> [!NOTE]
+> When both config file and cli options are provided, cli options would take a higher priority.
 
 ## Cli
 

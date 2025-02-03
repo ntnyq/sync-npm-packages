@@ -27,13 +27,7 @@ export async function resolveConfig<T extends OptionalOptions = {}>(cliConfig: P
       },
       {
         files: ['.syncrc'],
-        extensions: ['json', ''],
-      },
-      {
-        files: 'package.json',
-        rewrite(config) {
-          return (config as { sync?: any })?.sync
-        },
+        extensions: ['json'],
       },
     ],
     cwd: process.cwd(),

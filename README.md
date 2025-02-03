@@ -5,7 +5,7 @@
 [![NPM DOWNLOADS](https://img.shields.io/npm/dy/sync-npm-packages.svg)](https://www.npmjs.com/package/sync-npm-packages)
 [![LICENSE](https://img.shields.io/github/license/ntnyq/sync-npm-packages.svg)](https://github.com/ntnyq/sync-npm-packages/blob/main/LICENSE)
 
-Sync released npm packages to a mirror site.
+Sync released npm packages to a mirror site. e.g: [npmmirror](https://npmmirror.com/)
 
 ## Without installation
 
@@ -68,8 +68,6 @@ await syncNpmPackagesAuto({
 - `sync.config.mjs`
 - `sync.config.cjs`
 - `.syncrc.json`
-- `.syncrc`
-- property `sync` in `package.json`
 
 All properties of `Options` are supported and optional.
 
@@ -83,21 +81,6 @@ Config in `.syncrc.json`
 ```json
 {
   "$schema": "https://unpkg.com/sync-npm-packages/schemas/syncrc.json"
-}
-```
-
-### package.json
-
-Config in `.vscode/setting.json`:
-
-```json
-{
-  "json.schemas": [
-    {
-      "fileMatch": ["package.json"],
-      "url": "https://unpkg.com/sync-npm-packages/schemas/package-json.json"
-    }
-  ]
 }
 ```
 

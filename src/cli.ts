@@ -1,9 +1,10 @@
 import process from 'node:process'
 import { cac } from 'cac'
 import c from 'tinyrainbow'
-import { version } from '../package.json'
+import { name, version } from '../package.json'
+import { resolveConfig } from './config'
+import { getValidPackageNames, syncNpmPackages } from './core'
 import { assertSyncTarget } from './utils'
-import { getValidPackageNames, resolveConfig, syncNpmPackages } from '.'
 import type { Options } from './types'
 
 const cli = cac('sync-npm-packages')
@@ -20,31 +21,22 @@ cli
 
 cli.command('').action(async (options: Options) => {
   try {
-    // TODO: defaultIgnore is default to true
-    if (options.defaultIgnore) {
-      delete options.defaultIgnore
-    }
-
     const resolvedConfig = await resolveConfig(options)
 
     assertSyncTarget(resolvedConfig.target)
 
-    console.log()
-    console.log(
-      `${c.bold(c.magenta('sync-npm-packages'))} ${c.dim(`v${version}`)}`,
-    )
+    console.log(`\n${c.bold(c.magenta(name))} ${c.dim(`v${version}`)}`)
     console.log(c.dim('--------------'))
 
     const packages = await getValidPackageNames(resolvedConfig)
 
     if (!packages.length) {
-      console.log(c.red('No packages founded.'))
+      console.log(c.red('No packages detected.'))
       return
     }
 
     function printPackages() {
-      console.log()
-      console.log(c.dim('Detected packages to sync:'))
+      console.log(c.dim('\nDetected packages to sync:'))
 
       for (const pkg of packages) {
         console.log(`- ${c.cyan(c.bold(pkg))}`)
@@ -54,8 +46,7 @@ cli.command('').action(async (options: Options) => {
     }
 
     if (resolvedConfig.dry) {
-      console.log()
-      console.log(c.yellow('Dry run, sync is skiped.'))
+      console.log(c.yellow('\nDry run, sync is skiped.'))
       printPackages()
       return
     }

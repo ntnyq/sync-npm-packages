@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "lib": ["DOM", "ESNext"],
+    "target": "ESNext",
+    "lib": ["ES2022"],
     "moduleDetection": "force",
     "module": "ESNext",
     "isolatedDeclarations": true,

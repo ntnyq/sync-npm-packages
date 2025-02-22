@@ -7,18 +7,18 @@ export interface DetectOptions {
   cwd?: string
 
   /**
-   * Ignore package.json glob pattern
-   *
-   * @default []
-   */
-  ignore?: string | string[]
-
-  /**
    * Use built-in default ignore patterns
    *
    * @default true
    */
   defaultIgnore?: boolean
+
+  /**
+   * Ignore package.json glob pattern
+   *
+   * @default []
+   */
+  ignore?: string | string[]
 }
 
 export interface SyncOptions {
@@ -40,8 +40,8 @@ export interface SyncOptions {
 /**
  * options
  */
-export type Options = DetectOptions &
-  SyncOptions & {
+export type Options = DetectOptions
+  & SyncOptions & {
     /**
      * Dry run
      *

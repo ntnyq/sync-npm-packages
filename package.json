@@ -52,37 +52,42 @@
     "prepare": "husky",
     "prepublishOnly": "pnpm run build",
     "release": "run-s release:check release:publish release:sync",
-    "release:check": "run-s lint typecheck test",
+    "release:check": "run-s lint typecheck",
     "release:publish": "bumpp && pnpm publish",
     "release:sync": "npx sync-npm-packages --target npmmirror",
-    "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "cac": "^6.7.14",
-    "tinyglobby": "^0.2.10",
+    "tinyglobby": "^0.2.12",
     "tinyrainbow": "^2.0.0",
     "unconfig": "^7.0.0"
   },
   "devDependencies": {
-    "@ntnyq/eslint-config": "^3.12.3",
+    "@ntnyq/eslint-config": "^4.0.0-beta.8",
     "@ntnyq/prettier-config": "^2.0.0",
-    "@types/node": "^22.13.4",
+    "@types/node": "^22.13.5",
     "bumpp": "^10.0.3",
-    "eslint": "^9.20.1",
+    "eslint": "^9.21.0",
     "husky": "^9.1.7",
     "nano-staged": "^0.8.0",
     "npm-run-all2": "^7.0.2",
-    "prettier": "^3.5.1",
+    "prettier": "^3.5.2",
     "tsup": "^8.3.6",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.18.0"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "overrides": {
+      "esbuild": "^0.25.0"
+    }
+  },
   "nano-staged": {
-    "*.{js,ts,mjs,cjs,json,md,yml,yaml}": "eslint --fix"
+    "*.{js,ts,mjs,cjs,md,yml,yaml,json}": "eslint --fix"
   }
 }

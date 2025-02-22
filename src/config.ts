@@ -8,7 +8,7 @@ import type { OptionalOptions } from './types'
  * @param config - user defined config
  * @returns config
  */
-export function defineConfig(config: OptionalOptions = {}) {
+export function defineConfig(config: OptionalOptions = {}): OptionalOptions {
   return config
 }
 
@@ -18,7 +18,9 @@ export function defineConfig(config: OptionalOptions = {}) {
  * @param cliConfig - cli config
  * @returns merged config
  */
-export async function resolveConfig<T extends OptionalOptions = {}>(cliConfig: Partial<T> = {}) {
+export async function resolveConfig<T extends OptionalOptions = {}>(
+  cliConfig: Partial<T> = {},
+): Promise<Partial<T>> {
   const loader = createConfigLoader<T>({
     sources: [
       {

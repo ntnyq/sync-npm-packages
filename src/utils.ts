@@ -5,15 +5,17 @@ export function toArray<T>(value?: T | T[] | null): T[] {
   return Array.isArray(value) ? value : [value]
 }
 
-export function isValidPublicPackage(packageJson: PackageJson) {
-  if (packageJson.private) return
-  return packageJson.name && packageJson.version
+export function isValidPublicPackage(packageJson: PackageJson): boolean {
+  if (packageJson.private) return false
+  return !!(packageJson.name && packageJson.version)
 }
 
-export const SUPPORTED_TARGETS = ['npmmirror']
+export const SUPPORTED_TARGETS: string[] = ['npmmirror']
 
-export function assertSyncTarget(target?: string) {
+export function assertSyncTarget(target?: string): void {
   if (!target || !SUPPORTED_TARGETS.includes(target)) {
-    throw new Error(`Required option target to be one of ${JSON.stringify(SUPPORTED_TARGETS)}`)
+    throw new Error(
+      `Required option target to be one of ${JSON.stringify(SUPPORTED_TARGETS)}`,
+    )
   }
 }

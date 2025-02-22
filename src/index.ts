@@ -75,7 +75,10 @@ async function syncPackage2NpmMirror(packageName: string) {
  * await syncNpmPackages(['package-foo', 'package-bar'], { target: 'npmmirror' })
  * ```
  */
-export async function syncNpmPackages(input: string | string[], options: SyncOptions) {
+export async function syncNpmPackages(
+  input: string | string[],
+  options: SyncOptions,
+): Promise<void[]> {
   const packages = [...new Set(toArray(input))]
 
   assertSyncTarget(options.target)
@@ -89,7 +92,9 @@ export async function syncNpmPackages(input: string | string[], options: SyncOpt
  * @param options - detect options {@link DetectOptions}
  * @returns a Promise with valid package names
  */
-export async function getValidPackageNames(options: DetectOptions = {}) {
+export async function getValidPackageNames(
+  options: DetectOptions = {},
+): Promise<string[]> {
   const {
     cwd = process.cwd(),
     defaultIgnore: useDefaultIgnore = true,
@@ -135,7 +140,9 @@ export async function getValidPackageNames(options: DetectOptions = {}) {
  * await syncNpmPackagesAuto({ target: 'npmmirror' })
  * ```
  */
-export async function syncNpmPackagesAuto(options: DetectOptions & SyncOptions) {
+export async function syncNpmPackagesAuto(
+  options: DetectOptions & SyncOptions,
+): Promise<void[]> {
   assertSyncTarget(options.target)
 
   const packages = await getValidPackageNames(options)

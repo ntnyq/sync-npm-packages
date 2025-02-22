@@ -30,7 +30,9 @@ cli.command('').action(async (options: Options) => {
     assertSyncTarget(resolvedConfig.target)
 
     console.log()
-    console.log(`${c.bold(c.magenta('sync-npm-packages'))} ${c.dim(`v${version}`)}`)
+    console.log(
+      `${c.bold(c.magenta('sync-npm-packages'))} ${c.dim(`v${version}`)}`,
+    )
     console.log(c.dim('--------------'))
 
     const packages = await getValidPackageNames(resolvedConfig)

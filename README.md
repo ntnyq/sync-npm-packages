@@ -192,6 +192,20 @@ export interface DetectOptions {
   cwd?: string
 
   /**
+   * Use built-in default ignore patterns
+   *
+   * @default true
+   */
+  defaultIgnore?: boolean
+
+  /**
+   * Exclude packages from being synced
+   *
+   * @default []
+   */
+  exclude?: string | string[]
+
+  /**
    * Ignore package.json glob pattern
    *
    * @default []
@@ -199,11 +213,18 @@ export interface DetectOptions {
   ignore?: string | string[]
 
   /**
-   * Use built-in default ignore patterns
+   * Additional packages to sync
    *
-   * @default true
+   * @default []
    */
-  defaultIgnore?: boolean
+  include?: string | string[]
+
+  /**
+   * With `optionalDependencies` in `package.json`
+   *
+   * @default false
+   */
+  withOptional?: boolean
 }
 
 export interface SyncOptions {

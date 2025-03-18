@@ -14,11 +14,32 @@ export interface DetectOptions {
   defaultIgnore?: boolean
 
   /**
+   * Exclude packages from being synced
+   *
+   * @default []
+   */
+  exclude?: string | string[]
+
+  /**
    * Ignore package.json glob pattern
    *
    * @default []
    */
   ignore?: string | string[]
+
+  /**
+   * Additional packages to sync
+   *
+   * @default []
+   */
+  include?: string | string[]
+
+  /**
+   * With `optionalDependencies` in `package.json`
+   *
+   * @default false
+   */
+  withOptional?: boolean
 }
 
 export interface SyncOptions {
@@ -61,5 +82,6 @@ export type OptionalOptions = Partial<Options>
 export interface PackageJson {
   name: string
   version: string
+  optionalDependencies?: Record<string, string>
   private?: boolean
 }

@@ -3,8 +3,22 @@
   "description": "JSON schema for sync-npm-packages config",
   "$id": "sync-npm-packages",
   "title": "JSON schema for sync-npm-packages config",
-  "version": 1.1,
   "type": "object",
+  "definitions": {
+    "arrayable-string": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
   "properties": {
     "target": {
       "type": "string",
@@ -17,22 +31,28 @@
     },
     "ignore": {
       "description": "Ignore package.json glob pattern",
-      "oneOf": [
-        {
-          "type": "string"
-        },
-        {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        }
-      ]
+      "$ref": "#/definitions/arrayable-string",
+      "default": []
+    },
+    "include": {
+      "description": "Additional packages to sync",
+      "$ref": "#/definitions/arrayable-string",
+      "default": []
+    },
+    "exclude": {
+      "description": "Exclude packages from being synced",
+      "$ref": "#/definitions/arrayable-string",
+      "default": []
     },
     "defaultIgnore": {
       "type": "boolean",
       "description": "Use built-in default ignore patterns",
       "default": true
+    },
+    "withOptional": {
+      "description": "With optionalDependencies in package.json",
+      "type": "boolean",
+      "default": false
     },
     "debug": {
       "type": "boolean",

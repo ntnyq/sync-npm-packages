@@ -104,6 +104,9 @@ export async function getValidPackageNames(
     cwd = process.cwd(),
     defaultIgnore: useDefaultIgnore = true,
     ignore: userIgnore = [],
+    include = [],
+    exclude = [],
+    withOptional = false,
   } = options
   const ignore = toArray(userIgnore)
 
@@ -119,7 +122,7 @@ export async function getValidPackageNames(
     absolute: true,
     onlyFiles: true,
   })
-  const packages: string[] = []
+  const packages: string[] = [...toArray(include)]
 
   for await (const file of files) {
     const content = await readFile(file, 'utf-8')
@@ -127,10 +130,14 @@ export async function getValidPackageNames(
 
     if (isValidPublicPackage(packageJson)) {
       packages.push(packageJson.name)
+
+      if (withOptional) {
+        packages.push(...Object.keys(packageJson.optionalDependencies || {}))
+      }
     }
   }
 
-  return unique(packages)
+  return unique(packages.filter(pkg => !toArray(exclude).includes(pkg)))
 }
 
 /**

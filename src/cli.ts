@@ -7,7 +7,7 @@ import { getValidPackageNames, syncNpmPackages } from './core'
 import { assertSyncTarget } from './utils'
 import type { Options } from './types'
 
-const cli = cac('sync-npm-packages')
+const cli = cac(name)
 
 cli
   .version(version)

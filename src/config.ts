@@ -25,7 +25,7 @@ export async function resolveConfig<T extends OptionalOptions = {}>(
     sources: [
       {
         files: ['sync.config'],
-        extensions: ['ts', 'mts', 'cts', 'js', 'mjs', 'cjs'],
+        extensions: ['mts', 'cts', 'ts', 'mjs', 'cjs', 'js', 'json'],
       },
       {
         files: ['.syncrc'],

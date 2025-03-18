@@ -2,7 +2,7 @@
   "name": "sync-npm-packages",
   "type": "module",
   "version": "0.1.0",
-  "packageManager": "pnpm@10.6.3",
+  "packageManager": "pnpm@10.6.4",
   "description": "Sync released npm packages to a mirror site.",
   "keywords": [
     "npm",
@@ -42,13 +42,14 @@
   "scripts": {
     "build": "unbuild",
     "dev": "unbuild --stub",
-    "lint": "eslint .",
+    "lint": "eslint",
     "prepare": "husky",
     "prepublishOnly": "pnpm run build",
-    "release": "run-s release:check release:publish release:sync",
+    "release": "run-s release:check release:version release:publish release:sync",
     "release:check": "run-s lint typecheck",
-    "release:publish": "bumpp && pnpm publish",
+    "release:publish": "pnpm publish",
     "release:sync": "npx sync-npm-packages --target npmmirror",
+    "release:version": "bumpp",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -72,14 +73,6 @@
   },
   "engines": {
     "node": ">=18.18.0"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild"
-    ],
-    "overrides": {
-      "esbuild": "^0.25.1"
-    }
   },
   "nano-staged": {
     "*.{js,ts,mjs,cjs,md,yml,yaml,json}": "eslint --fix"

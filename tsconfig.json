@@ -7,6 +7,8 @@
     "moduleResolution": "Bundler",
     "types": ["node"],
     "resolveJsonModule": true,
+    "erasableSyntaxOnly": true,
+    "libReplacement": false,
     "declaration": true,
     "isolatedDeclarations": true,
     "isolatedModules": true,
@@ -15,5 +17,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["./src/"]
+  "include": ["./src"]
 }

@@ -61,12 +61,13 @@ await syncNpmPackagesAuto({
 
 `sync-npm-packages` uses [antfu-collective/unconfig](https://github.com/antfu-collective/unconfig) as the config loader, it will resolve files below by order:
 
-- `sync.config.ts`
 - `sync.config.mts`
 - `sync.config.cts`
-- `sync.config.js`
+- `sync.config.ts`
 - `sync.config.mjs`
 - `sync.config.cjs`
+- `sync.config.js`
+- `sync.config.json`
 - `.syncrc.json`
 
 All properties of `Options` are supported and optional.

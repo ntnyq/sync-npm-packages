@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft-07/schema",
-  "description": "JSON schema for sync-npm-packages config",
   "$id": "sync-npm-packages",
   "title": "JSON schema for sync-npm-packages config",
+  "description": "JSON schema for sync-npm-packages config",
   "type": "object",
   "definitions": {
     "arrayable-string": {
@@ -20,14 +20,29 @@
     }
   },
   "properties": {
-    "target": {
-      "type": "string",
-      "description": "Target mirror site to sync",
-      "enum": ["npmmirror"]
-    },
     "cwd": {
       "type": "string",
       "description": "Current working directory for glob"
+    },
+    "debug": {
+      "type": "boolean",
+      "description": "Enable debug mode",
+      "default": false
+    },
+    "defaultIgnore": {
+      "type": "boolean",
+      "description": "Use built-in default ignore patterns",
+      "default": true
+    },
+    "dry": {
+      "type": "boolean",
+      "description": "Dry run",
+      "default": false
+    },
+    "exclude": {
+      "description": "Exclude packages from being synced",
+      "$ref": "#/definitions/arrayable-string",
+      "default": []
     },
     "ignore": {
       "description": "Ignore package.json glob pattern",
@@ -39,29 +54,14 @@
       "$ref": "#/definitions/arrayable-string",
       "default": []
     },
-    "exclude": {
-      "description": "Exclude packages from being synced",
-      "$ref": "#/definitions/arrayable-string",
-      "default": []
-    },
-    "defaultIgnore": {
-      "type": "boolean",
-      "description": "Use built-in default ignore patterns",
-      "default": true
+    "target": {
+      "type": "string",
+      "description": "Target mirror site to sync",
+      "enum": ["npmmirror"]
     },
     "withOptional": {
       "description": "With optionalDependencies in package.json",
       "type": "boolean",
-      "default": false
-    },
-    "debug": {
-      "type": "boolean",
-      "description": "Enable debug mode",
-      "default": false
-    },
-    "dry": {
-      "type": "boolean",
-      "description": "Dry run",
       "default": false
     }
   },

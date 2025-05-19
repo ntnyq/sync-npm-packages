@@ -2,7 +2,7 @@
   "name": "sync-npm-packages",
   "type": "module",
   "version": "0.2.0",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.11.0",
   "description": "Sync released npm packages to a mirror site.",
   "keywords": [
     "npm",
@@ -59,14 +59,14 @@
     "unconfig": "^7.3.2"
   },
   "devDependencies": {
-    "@ntnyq/eslint-config": "^4.2.0",
-    "@ntnyq/prettier-config": "^2.0.0",
-    "@types/node": "^22.15.17",
-    "bumpp": "^10.1.0",
-    "eslint": "^9.26.0",
+    "@ntnyq/eslint-config": "^4.3.0",
+    "@ntnyq/prettier-config": "^2.1.0",
+    "@types/node": "^22.15.19",
+    "bumpp": "^10.1.1",
+    "eslint": "^9.27.0",
     "husky": "^9.1.7",
     "nano-staged": "^0.8.0",
-    "npm-run-all2": "^8.0.1",
+    "npm-run-all2": "^8.0.2",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "unbuild": "^3.5.0"

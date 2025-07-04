@@ -31,7 +31,9 @@
     "lcov",
     "npmmirror",
     "pnpm",
+    "tsdown",
     "unconfig",
+    "unrs",
     "vite",
     "vitest"
   ],

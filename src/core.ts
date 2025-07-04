@@ -1,13 +1,9 @@
 import { readFile } from 'node:fs/promises'
 import { request } from 'node:https'
 import process from 'node:process'
+import { toArray, unique } from '@ntnyq/utils'
 import { glob } from 'tinyglobby'
-import {
-  assertSyncTarget,
-  isValidPublicPackage,
-  toArray,
-  unique,
-} from './utils'
+import { assertSyncTarget, isValidPublicPackage } from './utils'
 import type { DetectOptions, PackageJson, SyncOptions } from './types'
 
 /**

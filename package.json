@@ -2,7 +2,7 @@
   "name": "sync-npm-packages",
   "type": "module",
   "version": "0.2.0",
-  "packageManager": "pnpm@10.12.4",
+  "packageManager": "pnpm@10.13.1",
   "description": "Sync released npm packages to a mirror site.",
   "keywords": [
     "npm",
@@ -25,13 +25,12 @@
   "exports": {
     "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     }
   },
-  "main": "./dist/index.mjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": "./bin.mjs",
   "files": [
     "bin.mjs",
@@ -40,8 +39,8 @@
   ],
   "sideEffects": false,
   "scripts": {
-    "build": "unbuild",
-    "dev": "unbuild --stub",
+    "build": "tsdown",
+    "dev": "tsdown --watch",
     "lint": "eslint",
     "prepare": "husky",
     "prepublishOnly": "pnpm run build",
@@ -59,17 +58,18 @@
     "unconfig": "^7.3.2"
   },
   "devDependencies": {
-    "@ntnyq/eslint-config": "^4.3.0",
+    "@ntnyq/eslint-config": "^5.0.0",
     "@ntnyq/prettier-config": "^3.0.1",
-    "@types/node": "^22.16.0",
+    "@ntnyq/utils": "^0.8.1",
+    "@types/node": "^24.0.12",
     "bumpp": "^10.2.0",
     "eslint": "^9.30.1",
     "husky": "^9.1.7",
     "nano-staged": "^0.8.0",
     "npm-run-all2": "^8.0.4",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3",
-    "unbuild": "^3.5.0"
+    "tsdown": "^0.12.9",
+    "typescript": "^5.8.3"
   },
   "engines": {
     "node": ">=18.18.0"

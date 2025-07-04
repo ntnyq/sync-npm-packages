@@ -1,33 +1,15 @@
 import type { PackageJson } from './types'
 
 /**
- * Converts a value to an array.
- *
- * @param value - The value to convert.
- * @returns The array.
- */
-export function toArray<T>(value?: T | T[] | null): T[] {
-  value ??= []
-  return Array.isArray(value) ? value : [value]
-}
-/**
- * Returns a new array with unique values.
- *
- * @param array - The array to process.
- * @returns The new array.
- */
-export function unique<T>(array: T[]): T[] {
-  return Array.from(new Set(array))
-}
-
-/**
  * Check if given package json object is valid
  *
  * @param packageJson - package json object
  * @returns true if is a valid package json, false otherwise
  */
 export function isValidPublicPackage(packageJson: PackageJson): boolean {
-  if (packageJson.private) return false
+  if (packageJson.private) {
+    return false
+  }
   return !!(packageJson.name && packageJson.version)
 }
 

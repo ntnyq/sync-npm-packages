@@ -27,7 +27,7 @@ export function unique<T>(array: T[]): T[] {
  * @returns true if is a valid package json, false otherwise
  */
 export function isValidPublicPackage(packageJson: PackageJson): boolean {
-  if (packageJson.private) return false
+  if (packageJson.private) {return false}
   return !!(packageJson.name && packageJson.version)
 }
 

@@ -10,7 +10,6 @@
     "erasableSyntaxOnly": true,
     "libReplacement": false,
     "declaration": true,
-    "isolatedDeclarations": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
     "esModuleInterop": true,

@@ -30,31 +30,49 @@ const DEFAULT_IGNORE = [
 const GLOB_PACKAGE_JSON = '**/package.json'
 
 /**
+ * Request timeout in milliseconds
+ */
+const REQUEST_TIMEOUT = 10000
+
+/**
  * Sync package to npm mirror
  * @param packageName - package name
  */
-async function syncPackage2NpmMirror(packageName: string) {
-  const p = new Promise<void>(resolve => {
-    const req = request({
-      method: 'PUT',
-      path: `/${packageName}/sync_upstream=true`,
-      host: 'registry-direct.npmmirror.com',
-      protocol: 'https:',
-      headers: {
-        'content-length': 0,
+async function syncPackage2NpmMirror(packageName: string): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const req = request(
+      {
+        method: 'PUT',
+        path: `/${packageName}/sync_upstream=true`,
+        host: 'registry-direct.npmmirror.com',
+        protocol: 'https:',
+        headers: {
+          'content-length': 0,
+        },
+        timeout: REQUEST_TIMEOUT,
       },
+      res => {
+        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+          resolve()
+        } else {
+          reject(
+            new Error(`Failed to sync ${packageName}: HTTP ${res.statusCode}`),
+          )
+        }
+      },
+    )
+
+    req.on('error', err => {
+      reject(new Error(`Failed to sync ${packageName}: ${err.message}`))
     })
 
-    req.write('')
-
-    req.on('close', () => {
-      resolve()
+    req.on('timeout', () => {
+      req.destroy()
+      reject(new Error(`Failed to sync ${packageName}: Request timeout`))
     })
 
     req.end()
   })
-
-  return p
 }
 
 /**
@@ -120,10 +138,14 @@ export async function getValidPackageNames(
   })
   const packages: string[] = [...toArray(include)]
 
-  for await (const file of files) {
-    const content = await readFile(file, 'utf-8')
-    const packageJson = JSON.parse(content) as PackageJson
+  const fileContents = await Promise.all(
+    files.map(async file => {
+      const content = await readFile(file, 'utf-8')
+      return JSON.parse(content) as PackageJson
+    }),
+  )
 
+  for (const packageJson of fileContents) {
     if (isValidPublicPackage(packageJson)) {
       packages.push(packageJson.name)
 

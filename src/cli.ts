@@ -49,7 +49,7 @@ cli.command('').action(async (options: Options) => {
     }
 
     if (resolvedConfig.dry) {
-      console.log(c.yellow('\nDry run, sync is skiped.'))
+      console.log(c.yellow('\nDry run, sync is skipped.'))
       printPackages()
       return
     }

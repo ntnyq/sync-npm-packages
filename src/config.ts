@@ -35,14 +35,13 @@ export async function resolveConfig<T extends OptionalOptions = {}>(
     cwd: process.cwd(),
     merge: false,
   })
-  const { config = {}, sources = [] } = await loader.load()
+  const { config = {} } = await loader.load()
 
-  return (
-    sources.length
-      ? {
-          ...config,
-          ...cliConfig,
-        }
-      : cliConfig
-  ) as Partial<T>
+  // CLI config takes precedence over file config
+  const mergedConfig: Partial<T> = {
+    ...config,
+    ...cliConfig,
+  }
+
+  return mergedConfig
 }

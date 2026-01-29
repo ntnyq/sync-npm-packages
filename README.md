@@ -5,91 +5,166 @@
 [![NPM DOWNLOADS](https://img.shields.io/npm/dy/sync-npm-packages.svg)](https://www.npmjs.com/package/sync-npm-packages)
 [![LICENSE](https://img.shields.io/github/license/ntnyq/sync-npm-packages.svg)](https://github.com/ntnyq/sync-npm-packages/blob/main/LICENSE)
 
-Sync released npm packages to a mirror site. e.g: [npmmirror](https://npmmirror.com/)
+Sync released npm packages to mirror registries automatically. e.g: [npmmirror](https://npmmirror.com/)
 
-## Without installation
+## Features
 
-```shell
+- 🚀 **Zero Config** - Works out of the box with sensible defaults
+- 📦 **Auto Detection** - Automatically discovers packages in monorepos
+- 🔧 **Flexible Config** - Supports 8+ config file formats via `unconfig`
+- 🎯 **CLI & API** - Use as a CLI tool or Node.js library
+- 🔄 **Retry Mechanism** - Automatic retry with exponential backoff
+- ⚡ **Concurrency Control** - Prevent rate limiting with configurable limits
+- 📊 **Progress Display** - Real-time sync progress with detailed logging
+- 🪝 **Hooks** - `beforeSync` and `afterSync` callbacks for custom logic
+- 💾 **Smart Caching** - Cache synced packages to avoid redundant operations
+- 🔐 **Custom Mirrors** - Support for custom registry URLs
+- 🔄 **GitHub Actions** - Easy integration with CI/CD workflows
+- 🌐 **Mirror Support** - Currently supports [npmmirror](https://npmmirror.com/)
+
+## Quick Start
+
+Run without installation:
+
+```bash
+# npm
 npx sync-npm-packages --target npmmirror
 ```
 
-```shell
+```bash
+# yarn
 yarn dlx sync-npm-packages --target npmmirror
 ```
 
-```shell
+```bash
+# pnpm
 pnpm dlx sync-npm-packages --target npmmirror
 ```
 
-## Install
+## Installation
 
-```shell
+```bash
 npm install sync-npm-packages -D
 ```
 
-```shell
+```bash
 yarn add sync-npm-packages -D
 ```
 
-```shell
+```bash
 pnpm add sync-npm-packages -D
 ```
 
 ## Usage
 
+Check [docs - examples](./docs/EXAMPLES.md) for more examples.
+
+### As a Library
+
 ```ts
 import { syncNpmPackages, syncNpmPackagesAuto } from 'sync-npm-packages'
 
-// single package
+// Sync a single package
 await syncNpmPackages('package-foobar', { target: 'npmmirror' })
 
-// multiple packages
+// Sync multiple packages
 await syncNpmPackages(['package-foo', 'package-bar'], { target: 'npmmirror' })
 
-// auto detect package.json and sync
+// Auto-detect and sync all packages in workspace
 await syncNpmPackagesAuto({ target: 'npmmirror' })
 
-// auto sync with options
+// Auto-sync with custom options
 await syncNpmPackagesAuto({
   cwd: './packages',
   ignore: ['**/themes/**', '**/tools/**'],
   target: 'npmmirror',
 })
+
+// With retry and concurrency control
+await syncNpmPackagesAuto({
+  target: 'npmmirror',
+  retry: 5,
+  retryDelay: 2000,
+  concurrency: 10,
+  timeout: 15000,
+  verbose: true,
+})
 ```
 
-## Config file
+### As a CLI
 
-`sync-npm-packages` uses [antfu-collective/unconfig](https://github.com/antfu-collective/unconfig) as the config loader, it will resolve files below by order:
+```bash
+# Sync all detected packages
+sync-npm-packages --target npmmirror
 
-- `sync.config.mts`
-- `sync.config.cts`
-- `sync.config.ts`
-- `sync.config.mjs`
-- `sync.config.cjs`
-- `sync.config.js`
-- `sync.config.json`
-- `.syncrc.json`
+# Specify working directory
+sync-npm-packages --target npmmirror --cwd ./packages
 
-All properties of `Options` are supported and optional.
+# With custom ignore patterns
+sync-npm-packages --target npmmirror --ignore "**/private/**"
 
-<details>
-<summary>JSON schema for json format config</summary>
+# Disable default ignore patterns
+sync-npm-packages --target npmmirror --no-default-ignore
 
-### .syncrc.json
+# Enable verbose output
+sync-npm-packages --target npmmirror --verbose
 
-Config in `.syncrc.json`
+# With retry and concurrency control
+sync-npm-packages --target npmmirror --retry 5 --concurrency 10
+
+# Custom timeout
+sync-npm-packages --target npmmirror --timeout 15000
+
+# Enable debug mode
+sync-npm-packages --target npmmirror --debug
+```
+
+#### CLI Options
+
+| Option                | Type      | Default | Description                       |
+| --------------------- | --------- | ------- | --------------------------------- |
+| `--target`            | `string`  | -       | Target mirror registry (required) |
+| `--cwd`               | `string`  | -       | Working directory                 |
+| `--ignore`            | `string`  | -       | Ignore glob pattern               |
+| `--include`           | `string`  | -       | Additional packages to sync       |
+| `--exclude`           | `string`  | -       | Exclude packages from sync        |
+| `--with-optional`     | `boolean` | `false` | Include optionalDependencies      |
+| `--no-default-ignore` | `boolean` | -       | Disable default ignore patterns   |
+| `--retry`             | `number`  | `3`     | Number of retry attempts          |
+| `--retry-delay`       | `number`  | `1000`  | Delay between retries (ms)        |
+| `--concurrency`       | `number`  | `5`     | Max concurrent requests           |
+| `--timeout`           | `number`  | `10000` | Request timeout (ms)              |
+| `--verbose`           | `boolean` | `false` | Enable detailed output            |
+| `--silent`            | `boolean` | `false` | Suppress all output               |
+| `--debug`             | `boolean` | `false` | Enable debug mode                 |
+| `--dry`               | `boolean` | `false` | Dry run without actual sync       |
+| `--version`           | -         | -       | Show version                      |
+| `--help`              | -         | -       | Show help                         |
+
+### In npm Scripts
+
+Add to your [package.json](package.json):
 
 ```json
 {
-  "$schema": "https://unpkg.com/sync-npm-packages/schemas/syncrc.json"
+  "scripts": {
+    "release": "bumpp && npm publish && sync-npm-packages --target npmmirror"
+  }
 }
 ```
 
-</details>
+## Configuration
 
-<br>
+### Config File Resolution
 
-Example:
+`sync-npm-packages` uses [unconfig](https://github.com/antfu-collective/unconfig) for config loading. It searches for config files in the following order:
+
+- `sync.config.{mts,cts,ts,mjs,cjs,js,json}`
+- `.syncrc.json`
+
+### TypeScript Config
+
+Use the `defineConfig` helper for type safety:
 
 ```ts
 // sync.config.ts
@@ -97,28 +172,42 @@ import { defineConfig } from 'sync-npm-packages'
 
 export default defineConfig({
   target: 'npmmirror',
-  defaultIgnore: false,
+  cwd: './packages',
+  ignore: ['**/private/**'],
+  defaultIgnore: true,
+
+  // Performance options
+  retry: 5,
+  retryDelay: 2000,
+  concurrency: 10,
+  timeout: 15000,
+
+  // Output options
+  verbose: true,
 })
 ```
 
-> [!NOTE]
-> When both config file and cli options are provided, cli options would take a higher priority.
+### JSON Config
 
-## Cli
-
-In package.json, if installed as a devDependency, `npx` can be emited.
+JSON configs support IntelliSense via JSON schema:
 
 ```json
+// .syncrc.json
 {
-  "scripts": {
-    "release": "npm publish && npx sync-npm-packages --target npmmirror"
-  }
+  "$schema": "https://unpkg.com/sync-npm-packages/schemas/syncrc.json",
+  "target": "npmmirror",
+  "defaultIgnore": false
 }
 ```
 
-## GitHub Action
+### Priority
 
-Run `npx sync-npm-packages` after publishing packages to npm.
+> [!NOTE]
+> CLI options override config file settings.
+
+## GitHub Actions Integration
+
+Automatically sync packages after publishing to npm:
 
 ```yaml
 name: Release
@@ -135,118 +224,133 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
-        # publish packages to npm
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+          registry-url: https://registry.npmjs.org/
 
+      # Build and publish your packages
+      - run: npm publish
+
+      # Sync to mirror
       - run: npx sync-npm-packages --target npmmirror
 ```
 
-## API
+## API Reference
 
-### syncNpmPackages
+### `syncNpmPackages(input, options)`
 
-**Type**: `(input: string | string[], options: SyncOptions) => Promise<void[]>`
-
-Sync npm packages release to a mirror site.
-
-#### Parameters
-
-**input**
-
-The package name or package names to sync.
-
-- **Type**: `string | string[]`
-
-**options**
-
-Sync options.
-
-- **Type**: `SyncOptions`
-
-### syncNpmPackagesAuto
-
-**Type**: `(options?: SyncOptions & DetectOptions) => Promise<void[]>`
-
-Auto detect and sync npm packages release to a mirror site.
-
-#### Parameters
-
-**options**
-
-The sync options.
-
-- **Type**: `SyncOptions & DetectOptions`
-
-## Interfaces
+Sync specified packages to a mirror registry.
 
 ```ts
-export interface DetectOptions {
-  /**
-   * Current working directory for glob
-   *
-   * @default process.cwd()
-   */
-  cwd?: string
-
-  /**
-   * Use built-in default ignore patterns
-   *
-   * @default true
-   */
-  defaultIgnore?: boolean
-
-  /**
-   * Exclude packages from being synced
-   *
-   * @default []
-   */
-  exclude?: string | string[]
-
-  /**
-   * Ignore package.json glob pattern
-   *
-   * @default []
-   */
-  ignore?: string | string[]
-
-  /**
-   * Additional packages to sync
-   *
-   * @default []
-   */
-  include?: string | string[]
-
-  /**
-   * With `optionalDependencies` in `package.json`
-   *
-   * @default false
-   */
-  withOptional?: boolean
-}
-
-export interface SyncOptions {
-  /**
-   * Sync target mirror set
-   *
-   * @requires
-   */
-  target: 'npmmirror'
-
-  /**
-   * Enable debug mode
-   *
-   * @default false
-   */
-  debug?: boolean
-}
+function syncNpmPackages(
+  input: string | string[],
+  options: SyncOptions,
+): Promise<void[]>
 ```
 
-## Additional
+#### Parameters
 
-### Default ignore patterns
+- **`input`** (`string | string[]`) - Package name(s) to sync
+- **`options`** (`SyncOptions`) - Sync configuration
+  - `target` (`'npmmirror'`) - Target mirror registry (required)
+  - `debug` (`boolean`) - Enable debug logging (default: `false`)
+
+#### Example
+
+```ts
+import { syncNpmPackages } from 'sync-npm-packages'
+
+// Single package
+await syncNpmPackages('my-package', { target: 'npmmirror' })
+
+// Multiple packages
+await syncNpmPackages(['pkg-a', 'pkg-b'], { target: 'npmmirror' })
+```
+
+---
+
+### `syncNpmPackagesAuto(options)`
+
+Auto-detect and sync packages from workspace.
+
+```ts
+function syncNpmPackagesAuto(
+  options?: SyncOptions & DetectOptions,
+): Promise<void[]>
+```
+
+#### Parameters
+
+- **`options`** (`SyncOptions & DetectOptions`) - Combined sync and detection options
+  - All `SyncOptions` properties
+  - All `DetectOptions` properties (see below)
+
+#### Example
+
+```ts
+import { syncNpmPackagesAuto } from 'sync-npm-packages'
+
+await syncNpmPackagesAuto({
+  target: 'npmmirror',
+  cwd: './packages',
+  ignore: ['**/test/**'],
+  exclude: ['private-pkg'],
+})
+```
+
+---
+
+## Type Definitions
+
+### `DetectOptions`
+
+Options for package detection in workspace.
+
+| Property        | Type                 | Default         | Description                        |
+| --------------- | -------------------- | --------------- | ---------------------------------- |
+| `cwd`           | `string`             | `process.cwd()` | Working directory for glob search  |
+| `defaultIgnore` | `boolean`            | `true`          | Use built-in ignore patterns       |
+| `exclude`       | `string \| string[]` | `[]`            | Package names to exclude from sync |
+| `ignore`        | `string \| string[]` | `[]`            | Glob patterns to ignore            |
+| `include`       | `string \| string[]` | `[]`            | Additional packages to sync        |
+| `withOptional`  | `boolean`            | `false`         | Include `optionalDependencies`     |
+
+### `SyncOptions`
+
+Options for syncing packages to mirrors.
+
+| Property      | Type                                                     | Default       | Description                           |
+| ------------- | -------------------------------------------------------- | ------------- | ------------------------------------- |
+| `target`      | `'npmmirror'`                                            | -             | Target mirror registry (required)     |
+| `debug`       | `boolean`                                                | `false`       | Enable debug logging                  |
+| `retry`       | `number`                                                 | `3`           | Number of retry attempts on failure   |
+| `retryDelay`  | `number`                                                 | `1000`        | Delay between retries in milliseconds |
+| `concurrency` | `number`                                                 | `5`           | Maximum number of concurrent requests |
+| `timeout`     | `number`                                                 | `10000`       | Request timeout in milliseconds       |
+| `verbose`     | `boolean`                                                | `false`       | Enable verbose output with progress   |
+| `silent`      | `boolean`                                                | `false`       | Silent mode, suppress all output      |
+| `registry`    | `string`                                                 | -             | Custom registry URL (optional)        |
+| `cache`       | `boolean`                                                | `false`       | Enable caching of synced packages     |
+| `cacheDir`    | `string`                                                 | `.sync-cache` | Cache directory path                  |
+| `beforeSync`  | `(name: string) => void \| Promise<void>`                | -             | Hook before each sync                 |
+| `afterSync`   | `(name: string, error?: Error) => void \| Promise<void>` | -             | Hook after each sync                  |
+
+### Advanced Features
+
+For detailed information about advanced features, see [ADVANCED.md](ADVANCED.md):
+
+- **Hooks** (`beforeSync`, `afterSync`) - Execute custom logic before/after sync
+- **Caching** - Automatically skip already synced packages
+- **Custom Registries** - Sync to non-default mirror endpoints
+
+### Default Ignore Patterns
+
+When `defaultIgnore: true` (default), these patterns are automatically excluded:
 
 - `**/node_modules/**`
 - `**/.git/**`
@@ -256,11 +360,19 @@ export interface SyncOptions {
 - `**/fixtures/**`
 - `**/playground/**`
 
-Use `--no-default-ignore` in cli or `defaultIgnore: false` in NodeJS API to disable all default ignore patterns except \***\*/node_modules/\*\***.
+> [!TIP]
+> Use `--no-default-ignore` or `defaultIgnore: false` to disable all defaults except `**/node_modules/**`.
 
-## Credits
+---
 
-- Idea from [vuepress/ecosystem](https://github.com/vuepress/ecosystem/blob/main/scripts/syncNpmmirror.ts)
+## Requirements
+
+- Node.js >= 20.19.0
+
+## Related Projects
+
+- [vuepress/ecosystem](https://github.com/vuepress/ecosystem/blob/main/scripts/syncNpmmirror.ts) - Original inspiration
+- [npmmirror](https://npmmirror.com/) - The npm mirror service
 
 ## License
 

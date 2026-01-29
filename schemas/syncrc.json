@@ -63,6 +63,67 @@
       "description": "With optionalDependencies in package.json",
       "type": "boolean",
       "default": false
+    },
+    "retry": {
+      "type": "number",
+      "description": "Number of retry attempts on failure",
+      "default": 3,
+      "minimum": 0
+    },
+    "retryDelay": {
+      "type": "number",
+      "description": "Delay between retries in milliseconds",
+      "default": 1000,
+      "minimum": 0
+    },
+    "concurrency": {
+      "type": "number",
+      "description": "Maximum number of concurrent sync requests",
+      "default": 5,
+      "minimum": 1
+    },
+    "timeout": {
+      "type": "number",
+      "description": "Request timeout in milliseconds",
+      "default": 10000,
+      "minimum": 1000
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Enable verbose output",
+      "default": false
+    },
+    "silent": {
+      "type": "boolean",
+      "description": "Silent mode, suppress all output",
+      "default": false
+    },
+    "registry": {
+      "type": "string",
+      "description": "Custom registry URL for syncing",
+      "format": "uri",
+      "examples": [
+        "https://registry.example.com",
+        "registry-direct.npmmirror.com"
+      ]
+    },
+    "cache": {
+      "type": "boolean",
+      "description": "Enable caching of synced packages to avoid duplicate syncs",
+      "default": false
+    },
+    "cacheDir": {
+      "type": "string",
+      "description": "Directory to store cache files",
+      "default": ".sync-cache"
+    },
+    "beforeSync": {
+      "description": "Callback function executed before each package sync",
+      "type": "null"
+    },
+    "afterSync": {
+      "description": "Callback function executed after each package sync attempt",
+      "type": "null"
     }
   },
   "required": ["target"],

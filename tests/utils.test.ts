@@ -9,7 +9,7 @@ describe('utils', () => {
         name: 'test-package',
         version: '1.0.0',
       }
-      expect(isValidPublicPackage(pkg)).toBe(true)
+      expect(isValidPublicPackage(pkg)).toBeTruthy()
     })
 
     it('should return false for private package', () => {
@@ -18,7 +18,7 @@ describe('utils', () => {
         version: '1.0.0',
         private: true,
       }
-      expect(isValidPublicPackage(pkg)).toBe(false)
+      expect(isValidPublicPackage(pkg)).toBeFalsy()
     })
 
     it('should return false for package without name', () => {
@@ -26,7 +26,7 @@ describe('utils', () => {
       const pkg: PackageJson = {
         version: '1.0.0',
       }
-      expect(isValidPublicPackage(pkg)).toBe(false)
+      expect(isValidPublicPackage(pkg)).toBeFalsy()
     })
 
     it('should return false for package without version', () => {
@@ -34,13 +34,13 @@ describe('utils', () => {
       const pkg: PackageJson = {
         name: 'test-package',
       }
-      expect(isValidPublicPackage(pkg)).toBe(false)
+      expect(isValidPublicPackage(pkg)).toBeFalsy()
     })
 
     it('should return false for package without name and version', () => {
       // @ts-expect-error no required fields
       const pkg: PackageJson = {}
-      expect(isValidPublicPackage(pkg)).toBe(false)
+      expect(isValidPublicPackage(pkg)).toBeFalsy()
     })
   })
 

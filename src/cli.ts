@@ -20,6 +20,24 @@ cli
   .option('--with-optional', 'With optionalDependencies in package.json')
   .option('--no-default-ignore', 'Disable default ignore patterns')
   .option('--dry', 'Dry run')
+  .option('--retry [retry]', 'Number of retry attempts on failure', {
+    default: 3,
+  })
+  .option(
+    '--retry-delay [retryDelay]',
+    'Delay between retries in milliseconds',
+    {
+      default: 1000,
+    },
+  )
+  .option('--concurrency [concurrency]', 'Maximum concurrent sync requests', {
+    default: 5,
+  })
+  .option('--timeout [timeout]', 'Request timeout in milliseconds', {
+    default: 10000,
+  })
+  .option('--verbose', 'Enable verbose output')
+  .option('--silent', 'Silent mode, suppress all output')
   .help()
 
 cli.command('').action(async (options: Options) => {
@@ -28,13 +46,17 @@ cli.command('').action(async (options: Options) => {
 
     assertSyncTarget(resolvedConfig.target)
 
-    console.log(`\n${c.bold(c.magenta(name))} ${c.dim(`v${version}`)}`)
-    console.log(c.dim('--------------'))
+    if (!resolvedConfig.silent) {
+      console.log(`\n${c.bold(c.magenta(name))} ${c.dim(`v${version}`)}`)
+      console.log(c.dim('--------------'))
+    }
 
     const packages = await getValidPackageNames(resolvedConfig)
 
     if (!packages.length) {
-      console.log(c.red('No packages detected.'))
+      if (!resolvedConfig.silent) {
+        console.log(c.red('No packages detected.'))
+      }
       return
     }
 
@@ -49,20 +71,26 @@ cli.command('').action(async (options: Options) => {
     }
 
     if (resolvedConfig.dry) {
-      console.log(c.yellow('\nDry run, sync is skipped.'))
-      printPackages()
+      if (!resolvedConfig.silent) {
+        console.log(c.yellow('\nDry run, sync is skipped.'))
+        printPackages()
+      }
       return
     }
 
     // target has been asserted before
     await syncNpmPackages(packages, resolvedConfig as Options)
 
-    console.log(c.green('Sync successfully!'))
+    if (!resolvedConfig.silent) {
+      console.log(c.green('\nSync successfully!'))
+    }
   } catch (err) {
-    console.error(c.red(String(err)))
+    if (!options.silent) {
+      console.error(c.red(String(err)))
 
-    if (err instanceof Error && err.stack) {
-      console.error(c.dim(err.stack?.split('\n').slice(1).join('\n')))
+      if (err instanceof Error && err.stack) {
+        console.error(c.dim(err.stack?.split('\n').slice(1).join('\n')))
+      }
     }
 
     process.exit(1)

@@ -62,8 +62,8 @@
   "devDependencies": {
     "@ntnyq/eslint-config": "^6.0.0-beta.6",
     "@ntnyq/utils": "^0.11.0",
-    "@types/node": "^25.1.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260128.1",
+    "@types/node": "^25.2.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260201.1",
     "bumpp": "^10.4.0",
     "eslint": "^9.39.2",
     "husky": "^9.1.7",

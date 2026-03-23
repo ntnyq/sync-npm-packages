@@ -2,7 +2,7 @@
   "name": "sync-npm-packages",
   "type": "module",
   "version": "0.2.0",
-  "packageManager": "pnpm@10.31.0",
+  "packageManager": "pnpm@10.32.1",
   "description": "Sync released npm packages to mirror registries automatically.",
   "keywords": [
     "npm",
@@ -56,23 +56,23 @@
   "dependencies": {
     "cac": "^7.0.0",
     "tinyglobby": "^0.2.15",
-    "tinyrainbow": "^3.0.3",
+    "tinyrainbow": "^3.1.0",
     "unconfig": "^7.5.0"
   },
   "devDependencies": {
-    "@ntnyq/eslint-config": "^6.0.0-beta.12",
+    "@ntnyq/eslint-config": "^6.0.0-beta.13",
     "@ntnyq/utils": "^0.11.0",
-    "@types/node": "^25.3.5",
-    "@typescript/native-preview": "^7.0.0-dev.20260308.1",
+    "@types/node": "^25.5.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260315.1",
     "bumpp": "^10.4.1",
     "eslint": "^10.0.3",
     "husky": "^9.1.7",
     "nano-staged": "^0.9.0",
     "npm-run-all2": "^8.0.4",
-    "oxfmt": "^0.36.0",
-    "tsdown": "^0.21.0",
+    "oxfmt": "^0.40.0",
+    "tsdown": "^0.21.3",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=20.19.0"

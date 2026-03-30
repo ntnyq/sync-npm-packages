@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { assertSyncTarget, isValidPublicPackage } from '../src/utils'
 import type { PackageJson } from '../src/types'
+import { assertSyncTarget, isValidPublicPackage } from '../src/utils'
 
 describe('utils', () => {
-  describe('isValidPublicPackage', () => {
+  describe(isValidPublicPackage, () => {
     it('should return true for valid public package', () => {
       const pkg: PackageJson = {
         name: 'test-package',
@@ -44,7 +44,7 @@ describe('utils', () => {
     })
   })
 
-  describe('assertSyncTarget', () => {
+  describe(assertSyncTarget, () => {
     it('should not throw for valid target', () => {
       expect(() => assertSyncTarget('npmmirror')).not.toThrow()
     })

@@ -3,7 +3,7 @@ import { defineConfig, resolveConfig } from '../src/config'
 import type { OptionalOptions } from '../src/types'
 
 describe('config', () => {
-  describe('defineConfig', () => {
+  describe(defineConfig, () => {
     it('should return config as is', () => {
       const config: OptionalOptions = {
         target: 'npmmirror',
@@ -31,7 +31,7 @@ describe('config', () => {
     })
   })
 
-  describe('resolveConfig', () => {
+  describe(resolveConfig, () => {
     it('should return cli config when no config file exists', async () => {
       const cliConfig: OptionalOptions = {
         target: 'npmmirror',
@@ -48,7 +48,7 @@ describe('config', () => {
       }
       const result = await resolveConfig(cliConfig)
       expect(result.target).toBe('npmmirror')
-      expect(result.dry).toBe(true)
+      expect(result.dry).toBeTruthy()
     })
 
     it('should work with empty cli config', async () => {

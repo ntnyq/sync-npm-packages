@@ -4,8 +4,8 @@ import c from 'tinyrainbow'
 import { name, version } from '../package.json'
 import { resolveConfig } from './config'
 import { getValidPackageNames, syncNpmPackages } from './core'
-import { assertSyncTarget } from './utils'
 import type { Options } from './types'
+import { assertSyncTarget } from './utils'
 
 const cli = cac(name)
 
@@ -34,7 +34,7 @@ cli
     default: 5,
   })
   .option('--timeout [timeout]', 'Request timeout in milliseconds', {
-    default: 10000,
+    default: 10_000,
   })
   .option('--verbose', 'Enable verbose output')
   .option('--silent', 'Silent mode, suppress all output')
@@ -53,7 +53,7 @@ cli.command('').action(async (options: Options) => {
 
     const packages = await getValidPackageNames(resolvedConfig)
 
-    if (!packages.length) {
+    if (packages.length === 0) {
       if (!resolvedConfig.silent) {
         console.log(c.red('No packages detected.'))
       }
@@ -84,12 +84,12 @@ cli.command('').action(async (options: Options) => {
     if (!resolvedConfig.silent) {
       console.log(c.green('\nSync successfully!'))
     }
-  } catch (err) {
+  } catch (error) {
     if (!options.silent) {
-      console.error(c.red(String(err)))
+      console.error(c.red(String(error)))
 
-      if (err instanceof Error && err.stack) {
-        console.error(c.dim(err.stack?.split('\n').slice(1).join('\n')))
+      if (error instanceof Error && error.stack) {
+        console.error(c.dim(error.stack?.split('\n').slice(1).join('\n')))
       }
     }
 

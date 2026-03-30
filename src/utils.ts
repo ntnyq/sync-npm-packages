@@ -10,7 +10,7 @@ export function isValidPublicPackage(packageJson: PackageJson): boolean {
   if (packageJson.private) {
     return false
   }
-  return !!(packageJson.name && packageJson.version)
+  return Boolean(packageJson.name && packageJson.version)
 }
 
 export const SUPPORTED_TARGETS: string[] = ['npmmirror']

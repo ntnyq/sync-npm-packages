@@ -1,20 +1,20 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expectTypeOf, expect, it } from 'vitest'
 import * as syncNpmPackages from '../src/index'
 
 describe('index', () => {
   it('should export syncNpmPackages function', () => {
     expect(syncNpmPackages.syncNpmPackages).toBeDefined()
-    expect(typeof syncNpmPackages.syncNpmPackages).toBe('function')
+    expectTypeOf(syncNpmPackages.syncNpmPackages).toBeFunction()
   })
 
   it('should export syncNpmPackagesAuto function', () => {
     expect(syncNpmPackages.syncNpmPackagesAuto).toBeDefined()
-    expect(typeof syncNpmPackages.syncNpmPackagesAuto).toBe('function')
+    expectTypeOf(syncNpmPackages.syncNpmPackagesAuto).toBeFunction()
   })
 
   it('should export defineConfig function', () => {
     expect(syncNpmPackages.defineConfig).toBeDefined()
-    expect(typeof syncNpmPackages.defineConfig).toBe('function')
+    expectTypeOf(syncNpmPackages.defineConfig).toBeFunction()
   })
 
   it('should export all required types', () => {

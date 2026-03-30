@@ -18,7 +18,7 @@ describe('core', () => {
     await rm(testDir, { recursive: true, force: true })
   })
 
-  describe('getValidPackageNames', () => {
+  describe(getValidPackageNames, () => {
     it('should detect valid public packages', async () => {
       const pkg1: PackageJson = {
         name: 'test-package-1',
@@ -190,7 +190,7 @@ describe('core', () => {
     })
   })
 
-  describe('syncNpmPackages', () => {
+  describe(syncNpmPackages, () => {
     it('should throw error for invalid target', async () => {
       await expect(
         syncNpmPackages('test-package', { target: 'invalid' as any }),

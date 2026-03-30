@@ -5,8 +5,8 @@ import process from 'node:process'
 import { toArray, unique } from '@ntnyq/utils'
 import { glob } from 'tinyglobby'
 import c from 'tinyrainbow'
-import { assertSyncTarget, isValidPublicPackage } from './utils'
 import type { DetectOptions, PackageJson, SyncOptions } from './types'
+import { assertSyncTarget, isValidPublicPackage } from './utils'
 
 /**
  * node_modules must be ignored
@@ -34,7 +34,7 @@ const GLOB_PACKAGE_JSON = '**/package.json'
 /**
  * Request timeout in milliseconds
  */
-const DEFAULT_REQUEST_TIMEOUT = 10000
+const DEFAULT_REQUEST_TIMEOUT = 10_000
 
 /**
  * Default retry count
@@ -128,7 +128,7 @@ async function syncPackage2NpmMirror(
 async function loadSyncCache(cacheDir: string): Promise<Set<string>> {
   try {
     const cachePath = join(cacheDir, 'synced-packages.json')
-    const content = await readFile(cachePath, 'utf-8')
+    const content = await readFile(cachePath, 'utf8')
     const data = JSON.parse(content) as { packages: string[] }
     return new Set(data.packages)
   } catch {
@@ -152,12 +152,12 @@ async function saveSyncCache(
       packages: Array.from(packages),
       timestamp: new Date().toISOString(),
     }
-    await writeFile(cachePath, JSON.stringify(data, null, 2), 'utf-8')
-  } catch (err) {
+    await writeFile(cachePath, JSON.stringify(data, null, 2), 'utf8')
+  } catch (error) {
     // Silently ignore cache write errors
-    if (err instanceof Error) {
+    if (error instanceof Error) {
       console.warn(
-        c.yellow(`Warning: Failed to save sync cache: ${err.message}`),
+        c.yellow(`Warning: Failed to save sync cache: ${error.message}`),
       )
     }
   }
@@ -181,14 +181,14 @@ async function syncPackageWithRetry(
     if (beforeSync) {
       await beforeSync(packageName)
     }
-  } catch (err) {
+  } catch (error) {
     if (afterSync) {
       await afterSync(
         packageName,
-        err instanceof Error ? err : new Error(String(err)),
+        error instanceof Error ? error : new Error(String(error)),
       )
     }
-    throw err
+    throw error
   }
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -213,13 +213,13 @@ async function syncPackageWithRetry(
       }
 
       return
-    } catch (err) {
+    } catch (error) {
       const isLastAttempt = attempt === maxRetries
 
       if (debug && !silent) {
         console.log(
           c.yellow(
-            `  Attempt ${attempt + 1} failed for ${packageName}: ${err instanceof Error ? err.message : String(err)}`,
+            `  Attempt ${attempt + 1} failed for ${packageName}: ${error instanceof Error ? error.message : String(error)}`,
           ),
         )
       }
@@ -228,7 +228,7 @@ async function syncPackageWithRetry(
         if (verbose && !silent) {
           console.log(
             c.red(
-              `  ✗ ${packageName}: ${err instanceof Error ? err.message : String(err)}`,
+              `  ✗ ${packageName}: ${error instanceof Error ? error.message : String(error)}`,
             ),
           )
         }
@@ -237,15 +237,15 @@ async function syncPackageWithRetry(
         if (afterSync) {
           await afterSync(
             packageName,
-            err instanceof Error ? err : new Error(String(err)),
+            error instanceof Error ? error : new Error(String(error)),
           )
         }
 
-        throw err
+        throw error
       }
 
       // Exponential backoff
-      const waitTime = retryDelay * Math.pow(2, attempt)
+      const waitTime = retryDelay * 2 ** attempt
       if (debug && !silent) {
         console.log(c.dim(`  Waiting ${waitTime}ms before retry...`))
       }
@@ -336,9 +336,9 @@ export async function syncNpmPackages(
           )
         }
       })
-      .catch(err => {
+      .catch(error => {
         completed++
-        errors.push({ package: pkg, error: err as Error })
+        errors.push({ package: pkg, error: error as Error })
         if (!silent && !verbose) {
           process.stdout.write(
             `\r${c.dim(`Progress: ${completed}/${packages.length}`)} ${c.green('✓'.repeat(Math.floor((completed / packages.length) * 20)))}`,
@@ -417,13 +417,13 @@ export async function getValidPackageNames(
   const fileContents = await Promise.all(
     files.map(async file => {
       try {
-        const content = await readFile(file, 'utf-8')
+        const content = await readFile(file, 'utf8')
         return JSON.parse(content) as PackageJson
-      } catch (err) {
+      } catch (error) {
         // Ignore invalid JSON files
-        if (err instanceof Error) {
+        if (error instanceof Error) {
           console.warn(
-            c.yellow(`Warning: Failed to parse ${file}: ${err.message}`),
+            c.yellow(`Warning: Failed to parse ${file}: ${error.message}`),
           )
         }
         return null

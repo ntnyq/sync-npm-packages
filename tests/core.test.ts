@@ -1,8 +1,14 @@
 import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import process from 'node:process'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { getValidPackageNames, syncNpmPackages } from '../src/core'
+import {
+  buildCustomSyncRequestPath,
+  buildSyncRequestPath,
+  normalizeRegistryHost,
+  resolveSyncRequest,
+} from '../src/transport'
 import type { PackageJson } from '../src/types'
 
 describe('core', () => {
@@ -50,7 +56,7 @@ describe('core', () => {
       await writeFile(join(testDir, 'package.json'), JSON.stringify(pkg))
 
       const packages = await getValidPackageNames({ cwd: testDir })
-      expect(packages.length).toBe(0)
+      expect(packages).toHaveLength(0)
     })
 
     it('should ignore packages without version', async () => {
@@ -61,7 +67,7 @@ describe('core', () => {
       await writeFile(join(testDir, 'package.json'), JSON.stringify(pkg))
 
       const packages = await getValidPackageNames({ cwd: testDir })
-      expect(packages.length).toBe(0)
+      expect(packages).toHaveLength(0)
     })
 
     it('should detect multiple packages', async () => {
@@ -84,7 +90,7 @@ describe('core', () => {
       const packages = await getValidPackageNames({ cwd: testDir })
       expect(packages).toContain('test-package-1')
       expect(packages).toContain('test-package-2')
-      expect(packages.length).toBe(2)
+      expect(packages).toHaveLength(2)
     })
 
     it('should include additional packages from include option', async () => {
@@ -150,7 +156,7 @@ describe('core', () => {
         cwd: testDir,
         include: ['pkg-a', 'pkg-b', 'pkg-a', 'pkg-b'],
       })
-      expect(packages).toEqual(['pkg-a', 'pkg-b'])
+      expect(packages).toStrictEqual(['pkg-a', 'pkg-b'])
     })
 
     it('should work with custom ignore patterns', async () => {
@@ -197,28 +203,143 @@ describe('core', () => {
       ).rejects.toThrow('Required option target to be one of npmmirror')
     })
 
-    it('should accept single package name as string', async () => {
-      // This test would make real HTTP requests, so we just verify it doesn't throw
-      // In a real scenario, you'd mock the HTTP request
-      const packages = ['test-package']
-      expect(() =>
-        syncNpmPackages(packages[0], { target: 'npmmirror' }),
-      ).not.toThrow()
+    it('should resolve with undefined for empty input', async () => {
+      await expect(
+        syncNpmPackages([], { target: 'npmmirror' }),
+      ).resolves.toBeUndefined()
     })
 
-    it('should accept multiple package names as array', async () => {
-      const packages = ['test-package-1', 'test-package-2']
-      expect(() =>
-        syncNpmPackages(packages, { target: 'npmmirror' }),
-      ).not.toThrow()
+    it('should fail sync when registry config is invalid', async () => {
+      await expect(
+        syncNpmPackages('test-package', {
+          target: 'npmmirror',
+          registry: 'http://registry.example.com',
+          retry: 0,
+          silent: true,
+        }),
+      ).rejects.toThrow('Failed to sync 1 package(s)')
     })
 
-    it('should deduplicate package names', async () => {
-      const packages = ['test-package', 'test-package']
-      // The function should handle duplicates internally
+    it('should fail sync when registry host is private', async () => {
+      await expect(
+        syncNpmPackages('test-package', {
+          target: 'npmmirror',
+          registry: '127.0.0.1',
+          retry: 0,
+          silent: true,
+        }),
+      ).rejects.toThrow('Failed to sync 1 package(s)')
+    })
+
+    it('should fail sync when custom target misses path template', async () => {
+      await expect(
+        syncNpmPackages('test-package', {
+          target: 'custom',
+          registry: 'registry.example.com',
+          retry: 0,
+          silent: true,
+        }),
+      ).rejects.toThrow('Failed to sync 1 package(s)')
+    })
+
+    it('should reject regardless of silent mode', async () => {
+      const base = {
+        target: 'npmmirror' as const,
+        registry: 'http://registry.example.com',
+        retry: 0,
+      }
+
+      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+      const writeSpy = vi
+        .spyOn(process.stdout, 'write')
+        .mockReturnValue(true)
+
+      try {
+        await expect(
+          syncNpmPackages('test-package', {
+            ...base,
+            silent: false,
+          }),
+        ).rejects.toThrow('Failed to sync 1 package(s)')
+
+        await expect(
+          syncNpmPackages('test-package', {
+            ...base,
+            silent: true,
+          }),
+        ).rejects.toThrow('Failed to sync 1 package(s)')
+      } finally {
+        writeSpy.mockRestore()
+        logSpy.mockRestore()
+      }
+    })
+  })
+
+  describe('transport helpers', () => {
+    it('should encode scoped package names in request path', () => {
+      expect(buildSyncRequestPath('@scope/pkg')).toBe(
+        '/-/package/%40scope%2Fpkg/syncs',
+      )
+    })
+
+    it('should accept host-only registry input', () => {
+      expect(normalizeRegistryHost('registry.example.com')).toBe(
+        'registry.example.com',
+      )
+    })
+
+    it('should accept https URL registry input', () => {
+      expect(normalizeRegistryHost('https://registry.example.com')).toBe(
+        'registry.example.com',
+      )
+    })
+
+    it('should reject non-https registry URLs', () => {
       expect(() =>
-        syncNpmPackages(packages, { target: 'npmmirror' }),
-      ).not.toThrow()
+        normalizeRegistryHost('http://registry.example.com'),
+      ).toThrow('Registry must use https protocol')
+    })
+
+    it('should reject private registry hosts', () => {
+      expect(() => normalizeRegistryHost('127.0.0.1')).toThrow(
+        'Registry host must be a public host',
+      )
+    })
+
+    it('should build custom sync request path from template', () => {
+      expect(
+        buildCustomSyncRequestPath('@scope/pkg', '/sync/{packageName}'),
+      ).toBe('/sync/%40scope%2Fpkg')
+    })
+
+    it('should reject custom template without placeholder', () => {
+      expect(() => buildCustomSyncRequestPath('pkg', '/sync/pkg')).toThrow(
+        'syncPathTemplate must include {packageName} placeholder',
+      )
+    })
+
+    it('should resolve request for npmmirror target', () => {
+      expect(
+        resolveSyncRequest('@scope/pkg', {
+          target: 'npmmirror',
+        }),
+      ).toStrictEqual({
+        method: 'PUT',
+        path: '/-/package/%40scope%2Fpkg/syncs',
+      })
+    })
+
+    it('should resolve request for custom target', () => {
+      expect(
+        resolveSyncRequest('@scope/pkg', {
+          target: 'custom',
+          syncMethod: 'POST',
+          syncPathTemplate: '/api/sync/{packageName}',
+        }),
+      ).toStrictEqual({
+        method: 'POST',
+        path: '/api/sync/%40scope%2Fpkg',
+      })
     })
   })
 })

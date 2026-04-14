@@ -49,21 +49,25 @@ describe('utils', () => {
       expect(() => assertSyncTarget('npmmirror')).not.toThrow()
     })
 
+    it('should not throw for custom target', () => {
+      expect(() => assertSyncTarget('custom')).not.toThrow()
+    })
+
     it('should throw for invalid target', () => {
       expect(() => assertSyncTarget('invalid-target')).toThrow(
-        'Required option target to be one of npmmirror',
+        'Required option target to be one of npmmirror, custom',
       )
     })
 
     it('should throw for undefined target', () => {
       expect(() => assertSyncTarget(undefined)).toThrow(
-        'Required option target to be one of npmmirror',
+        'Required option target to be one of npmmirror, custom',
       )
     })
 
     it('should throw for empty string target', () => {
       expect(() => assertSyncTarget('')).toThrow(
-        'Required option target to be one of npmmirror',
+        'Required option target to be one of npmmirror, custom',
       )
     })
   })

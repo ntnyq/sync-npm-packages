@@ -22,6 +22,19 @@ await syncNpmPackages(['package-a', 'package-b', 'package-c'], {
 })
 ```
 
+### Custom Target Sync
+
+When your registry uses a non-npmmirror sync endpoint, use the `custom` target:
+
+```ts
+await syncNpmPackages(['package-a', '@scope/package-b'], {
+  target: 'custom',
+  registry: 'registry.example.com',
+  syncMethod: 'POST',
+  syncPathTemplate: '/api/sync/{packageName}',
+})
+```
+
 ## Auto-Detection
 
 ### Basic Auto-Sync
@@ -171,6 +184,17 @@ sync-npm-packages --target npmmirror --ignore "**/test/**" --ignore "**/fixtures
 sync-npm-packages --target npmmirror --no-default-ignore
 ```
 
+### Custom Target CLI
+
+```bash
+# Trigger custom registry sync endpoint
+sync-npm-packages \
+  --target custom \
+  --registry registry.example.com \
+  --sync-method POST \
+  --sync-path-template "/api/sync/{packageName}"
+```
+
 ## Config File Examples
 
 ### Minimal Config
@@ -207,6 +231,23 @@ export default defineConfig({
   timeout: 15000,
 
   // Output
+  verbose: true,
+})
+```
+
+### Custom Target Config
+
+```ts
+// sync.config.ts
+import { defineConfig } from 'sync-npm-packages'
+
+export default defineConfig({
+  target: 'custom',
+  registry: 'registry.example.com',
+  syncMethod: 'PATCH',
+  syncPathTemplate: '/-/package/{packageName}/sync',
+  retry: 5,
+  concurrency: 5,
   verbose: true,
 })
 ```
@@ -433,6 +474,18 @@ sync-npm-packages --target npmmirror --concurrency 3 --retry 10
 ```
 
 ## Troubleshooting Examples
+
+### Validate Custom Target Template
+
+If you are using `target: 'custom'`, ensure the template includes `{packageName}`:
+
+```bash
+# valid
+sync-npm-packages --target custom --registry registry.example.com --sync-path-template "/sync/{packageName}"
+
+# invalid: missing {packageName}
+sync-npm-packages --target custom --registry registry.example.com --sync-path-template "/sync/pkg"
+```
 
 ### Check What Would Be Synced
 

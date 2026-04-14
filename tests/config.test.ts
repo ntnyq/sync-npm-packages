@@ -9,25 +9,27 @@ describe('config', () => {
         target: 'npmmirror',
         cwd: '/test',
       }
-      expect(defineConfig(config)).toEqual(config)
+      expect(defineConfig(config)).toStrictEqual(config)
     })
 
     it('should work with empty config', () => {
-      expect(defineConfig()).toEqual({})
+      expect(defineConfig()).toStrictEqual({})
     })
 
     it('should preserve all config properties', () => {
       const config: OptionalOptions = {
-        target: 'npmmirror',
+        target: 'custom',
         cwd: '/test',
         ignore: ['*.md'],
         include: ['pkg-a', 'pkg-b'],
         exclude: ['pkg-c'],
+        syncPathTemplate: '/api/sync/{packageName}',
+        syncMethod: 'POST',
         withOptional: true,
         defaultIgnore: false,
         dry: true,
       }
-      expect(defineConfig(config)).toEqual(config)
+      expect(defineConfig(config)).toStrictEqual(config)
     })
   })
 
@@ -38,7 +40,7 @@ describe('config', () => {
         cwd: '/test',
       }
       const result = await resolveConfig(cliConfig)
-      expect(result).toEqual(cliConfig)
+      expect(result).toStrictEqual(cliConfig)
     })
 
     it('should merge cli config with file config with cli taking precedence', async () => {

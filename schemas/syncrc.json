@@ -57,7 +57,7 @@
     "target": {
       "type": "string",
       "description": "Target mirror site to sync",
-      "enum": ["npmmirror"]
+      "enum": ["npmmirror", "custom"]
     },
     "withOptional": {
       "description": "With optionalDependencies in package.json",
@@ -100,12 +100,19 @@
     },
     "registry": {
       "type": "string",
-      "description": "Custom registry URL for syncing",
-      "format": "uri",
-      "examples": [
-        "https://registry.example.com",
-        "registry-direct.npmmirror.com"
-      ]
+      "description": "Custom registry host or HTTPS URL for syncing",
+      "examples": ["https://registry.example.com", "registry.npmmirror.com"]
+    },
+    "syncMethod": {
+      "type": "string",
+      "description": "HTTP method used for sync request",
+      "enum": ["PUT", "POST", "PATCH"],
+      "default": "PUT"
+    },
+    "syncPathTemplate": {
+      "type": "string",
+      "description": "Path template used when target is custom, supports {packageName} placeholder",
+      "examples": ["/-/package/{packageName}/syncs", "/api/sync/{packageName}"]
     },
     "cache": {
       "type": "boolean",

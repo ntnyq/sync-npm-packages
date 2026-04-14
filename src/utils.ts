@@ -13,7 +13,7 @@ export function isValidPublicPackage(packageJson: PackageJson): boolean {
   return Boolean(packageJson.name && packageJson.version)
 }
 
-export const SUPPORTED_TARGETS: string[] = ['npmmirror']
+export const SUPPORTED_TARGETS: string[] = ['npmmirror', 'custom']
 
 /**
  * Assert given target is a valid sync target

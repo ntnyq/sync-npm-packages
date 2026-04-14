@@ -19,6 +19,7 @@ Sync released npm packages to mirror registries automatically. e.g: [npmmirror](
 - 🪝 **Hooks** - `beforeSync` and `afterSync` callbacks for custom logic
 - 💾 **Smart Caching** - Cache synced packages to avoid redundant operations
 - 🔐 **Custom Mirrors** - Support for custom registry URLs
+- 🧩 **Target Adaptors** - Built-in `npmmirror` and configurable `custom` target
 - 🔄 **GitHub Actions** - Easy integration with CI/CD workflows
 - 🌐 **Mirror Support** - Currently supports [npmmirror](https://npmmirror.com/)
 
@@ -89,6 +90,14 @@ await syncNpmPackagesAuto({
   timeout: 15000,
   verbose: true,
 })
+
+// Use custom target adaptor with user-defined sync path
+await syncNpmPackagesAuto({
+  target: 'custom',
+  registry: 'registry.example.com',
+  syncMethod: 'POST',
+  syncPathTemplate: '/api/sync/{packageName}',
+})
 ```
 
 ### As a CLI
@@ -117,29 +126,34 @@ sync-npm-packages --target npmmirror --timeout 15000
 
 # Enable debug mode
 sync-npm-packages --target npmmirror --debug
+
+# Use custom target adaptor with custom path template
+sync-npm-packages --target custom --registry registry.example.com --sync-method POST --sync-path-template "/api/sync/{packageName}"
 ```
 
 #### CLI Options
 
-| Option                | Type      | Default | Description                       |
-| --------------------- | --------- | ------- | --------------------------------- |
-| `--target`            | `string`  | -       | Target mirror registry (required) |
-| `--cwd`               | `string`  | -       | Working directory                 |
-| `--ignore`            | `string`  | -       | Ignore glob pattern               |
-| `--include`           | `string`  | -       | Additional packages to sync       |
-| `--exclude`           | `string`  | -       | Exclude packages from sync        |
-| `--with-optional`     | `boolean` | `false` | Include optionalDependencies      |
-| `--no-default-ignore` | `boolean` | -       | Disable default ignore patterns   |
-| `--retry`             | `number`  | `3`     | Number of retry attempts          |
-| `--retry-delay`       | `number`  | `1000`  | Delay between retries (ms)        |
-| `--concurrency`       | `number`  | `5`     | Max concurrent requests           |
-| `--timeout`           | `number`  | `10000` | Request timeout (ms)              |
-| `--verbose`           | `boolean` | `false` | Enable detailed output            |
-| `--silent`            | `boolean` | `false` | Suppress all output               |
-| `--debug`             | `boolean` | `false` | Enable debug mode                 |
-| `--dry`               | `boolean` | `false` | Dry run without actual sync       |
-| `--version`           | -         | -       | Show version                      |
-| `--help`              | -         | -       | Show help                         |
+| Option                 | Type      | Default | Description                                           |
+| ---------------------- | --------- | ------- | ----------------------------------------------------- |
+| `--target`             | `string`  | -       | Target mirror registry (required)                     |
+| `--sync-method`        | `string`  | `PUT`   | HTTP method for sync request (`PUT`, `POST`, `PATCH`) |
+| `--sync-path-template` | `string`  | -       | Custom sync path template with `{packageName}`        |
+| `--cwd`                | `string`  | -       | Working directory                                     |
+| `--ignore`             | `string`  | -       | Ignore glob pattern                                   |
+| `--include`            | `string`  | -       | Additional packages to sync                           |
+| `--exclude`            | `string`  | -       | Exclude packages from sync                            |
+| `--with-optional`      | `boolean` | `false` | Include optionalDependencies                          |
+| `--no-default-ignore`  | `boolean` | -       | Disable default ignore patterns                       |
+| `--retry`              | `number`  | `3`     | Number of retry attempts                              |
+| `--retry-delay`        | `number`  | `1000`  | Delay between retries (ms)                            |
+| `--concurrency`        | `number`  | `5`     | Max concurrent requests                               |
+| `--timeout`            | `number`  | `10000` | Request timeout (ms)                                  |
+| `--verbose`            | `boolean` | `false` | Enable detailed output                                |
+| `--silent`             | `boolean` | `false` | Suppress all output                                   |
+| `--debug`              | `boolean` | `false` | Enable debug mode                                     |
+| `--dry`                | `boolean` | `false` | Dry run without actual sync                           |
+| `--version`            | -         | -       | Show version                                          |
+| `--help`               | -         | -       | Show help                                             |
 
 ### In npm Scripts
 
@@ -242,6 +256,33 @@ jobs:
 
 ## API Reference
 
+### npmmirror Sync Endpoint
+
+This project uses the official npmmirror single-package sync endpoint:
+
+- `PUT https://registry.npmmirror.com/-/package/<package-name>/syncs`
+- Package names are URL-encoded automatically (including scoped packages like `@vue/compiler-sfc`)
+- A successful response means the package has been queued for sync (not necessarily completed immediately)
+
+### Custom Target Adaptor
+
+Use `target: 'custom'` when your registry has a different sync trigger path.
+
+- `syncPathTemplate` is required for `custom` target
+- Use `{packageName}` placeholder, it will be URL-encoded
+- `syncMethod` defaults to `PUT`
+
+Example:
+
+```ts
+await syncNpmPackages('lodash', {
+  target: 'custom',
+  registry: 'registry.example.com',
+  syncMethod: 'POST',
+  syncPathTemplate: '/api/sync/{packageName}',
+})
+```
+
 ### `syncNpmPackages(input, options)`
 
 Sync specified packages to a mirror registry.
@@ -250,14 +291,14 @@ Sync specified packages to a mirror registry.
 function syncNpmPackages(
   input: string | string[],
   options: SyncOptions,
-): Promise<void[]>
+): Promise<void>
 ```
 
 #### Parameters
 
 - **`input`** (`string | string[]`) - Package name(s) to sync
 - **`options`** (`SyncOptions`) - Sync configuration
-  - `target` (`'npmmirror'`) - Target mirror registry (required)
+  - `target` (`'npmmirror' | 'custom'`) - Target mirror registry (required)
   - `debug` (`boolean`) - Enable debug logging (default: `false`)
 
 #### Example
@@ -281,7 +322,7 @@ Auto-detect and sync packages from workspace.
 ```ts
 function syncNpmPackagesAuto(
   options?: SyncOptions & DetectOptions,
-): Promise<void[]>
+): Promise<void>
 ```
 
 #### Parameters
@@ -324,21 +365,23 @@ Options for package detection in workspace.
 
 Options for syncing packages to mirrors.
 
-| Property      | Type                                                     | Default       | Description                           |
-| ------------- | -------------------------------------------------------- | ------------- | ------------------------------------- |
-| `target`      | `'npmmirror'`                                            | -             | Target mirror registry (required)     |
-| `debug`       | `boolean`                                                | `false`       | Enable debug logging                  |
-| `retry`       | `number`                                                 | `3`           | Number of retry attempts on failure   |
-| `retryDelay`  | `number`                                                 | `1000`        | Delay between retries in milliseconds |
-| `concurrency` | `number`                                                 | `5`           | Maximum number of concurrent requests |
-| `timeout`     | `number`                                                 | `10000`       | Request timeout in milliseconds       |
-| `verbose`     | `boolean`                                                | `false`       | Enable verbose output with progress   |
-| `silent`      | `boolean`                                                | `false`       | Silent mode, suppress all output      |
-| `registry`    | `string`                                                 | -             | Custom registry URL (optional)        |
-| `cache`       | `boolean`                                                | `false`       | Enable caching of synced packages     |
-| `cacheDir`    | `string`                                                 | `.sync-cache` | Cache directory path                  |
-| `beforeSync`  | `(name: string) => void \| Promise<void>`                | -             | Hook before each sync                 |
-| `afterSync`   | `(name: string, error?: Error) => void \| Promise<void>` | -             | Hook after each sync                  |
+| Property           | Type                                                     | Default       | Description                                                |
+| ------------------ | -------------------------------------------------------- | ------------- | ---------------------------------------------------------- |
+| `target`           | `'npmmirror' \| 'custom'`                                | -             | Target mirror registry (required)                          |
+| `debug`            | `boolean`                                                | `false`       | Enable debug logging                                       |
+| `retry`            | `number`                                                 | `3`           | Number of retry attempts on failure                        |
+| `retryDelay`       | `number`                                                 | `1000`        | Delay between retries in milliseconds                      |
+| `concurrency`      | `number`                                                 | `5`           | Maximum number of concurrent requests                      |
+| `timeout`          | `number`                                                 | `10000`       | Request timeout in milliseconds                            |
+| `verbose`          | `boolean`                                                | `false`       | Enable verbose output with progress                        |
+| `silent`           | `boolean`                                                | `false`       | Silent mode, suppress all output                           |
+| `registry`         | `string`                                                 | -             | Custom public registry host or HTTPS URL (optional)        |
+| `syncMethod`       | `'PUT' \| 'POST' \| 'PATCH'`                             | `PUT`         | HTTP method for sync request                               |
+| `syncPathTemplate` | `string`                                                 | -             | Required when target is `custom`; supports `{packageName}` |
+| `cache`            | `boolean`                                                | `false`       | Enable caching of synced packages                          |
+| `cacheDir`         | `string`                                                 | `.sync-cache` | Cache directory path                                       |
+| `beforeSync`       | `(name: string) => void \| Promise<void>`                | -             | Hook before each sync                                      |
+| `afterSync`        | `(name: string, error?: Error) => void \| Promise<void>` | -             | Hook after each sync                                       |
 
 ### Advanced Features
 
@@ -367,7 +410,7 @@ When `defaultIgnore: true` (default), these patterns are automatically excluded:
 
 ## Requirements
 
-- Node.js >= 20.19.0
+- Node.js `^22.13.0 || >=24.0`
 
 ## Related Projects
 

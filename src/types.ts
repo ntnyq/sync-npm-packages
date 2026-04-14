@@ -48,7 +48,7 @@ export interface SyncOptions {
    *
    * @requires
    */
-  target: 'npmmirror'
+  target: 'npmmirror' | 'custom'
 
   /**
    * Enable caching of synced packages to avoid duplicate syncs
@@ -80,12 +80,28 @@ export interface SyncOptions {
   debug?: boolean
 
   /**
-   * Custom registry URL for syncing
+   * Custom registry host or HTTPS URL for syncing
    * When specified, overrides the default npmmirror registry
+   * Host must be public and must not include path, query, or credentials
    *
-   * @example 'https://registry.example.com'
+   * @example 'registry.example.com'
    */
   registry?: string
+
+  /**
+   * HTTP method used for sync requests
+   *
+   * @default 'PUT'
+   */
+  syncMethod?: 'PUT' | 'POST' | 'PATCH'
+
+  /**
+   * Path template used when target is `custom`
+   * Use `{packageName}` placeholder for URL-encoded package name
+   *
+   * @example '/-/package/{packageName}/syncs'
+   */
+  syncPathTemplate?: string
 
   /**
    * Number of retry attempts on failure

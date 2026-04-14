@@ -1,10 +1,10 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { request } from 'node:https'
 import { join } from 'node:path'
 import process from 'node:process'
 import { toArray, unique } from '@ntnyq/utils'
 import { glob } from 'tinyglobby'
 import c from 'tinyrainbow'
+import { syncPackageToRegistry } from './transport'
 import type { DetectOptions, PackageJson, SyncOptions } from './types'
 import { assertSyncTarget, isValidPublicPackage } from './utils'
 
@@ -32,11 +32,6 @@ const DEFAULT_IGNORE = [
 const GLOB_PACKAGE_JSON = '**/package.json'
 
 /**
- * Request timeout in milliseconds
- */
-const DEFAULT_REQUEST_TIMEOUT = 10_000
-
-/**
  * Default retry count
  */
 const DEFAULT_RETRY = 3
@@ -57,68 +52,6 @@ const DEFAULT_CONCURRENCY = 5
  */
 function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
-}
-
-/**
- * Sync package to npm mirror
- * @param packageName - package name
- * @param options - sync options
- */
-async function syncPackage2NpmMirror(
-  packageName: string,
-  options: SyncOptions,
-): Promise<void> {
-  const timeout = options.timeout ?? DEFAULT_REQUEST_TIMEOUT
-  const registry = options.registry ?? 'registry-direct.npmmirror.com'
-  const registryHost = new URL(`https://${registry}`).hostname
-
-  return new Promise<void>((resolve, reject) => {
-    const req = request(
-      {
-        method: 'PUT',
-        path: `/${packageName}/sync_upstream=true`,
-        host: registryHost,
-        protocol: 'https:',
-        headers: {
-          'content-length': 0,
-        },
-        timeout,
-      },
-      res => {
-        let responseBody = ''
-
-        res.on('data', chunk => {
-          responseBody += chunk
-        })
-
-        res.on('end', () => {
-          if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-            resolve()
-          } else {
-            const errorMsg = responseBody
-              ? `HTTP ${res.statusCode}: ${responseBody}`
-              : `HTTP ${res.statusCode}`
-            reject(new Error(`Failed to sync ${packageName}: ${errorMsg}`))
-          }
-        })
-      },
-    )
-
-    req.on('error', err => {
-      reject(new Error(`Failed to sync ${packageName}: ${err.message}`))
-    })
-
-    req.on('timeout', () => {
-      req.destroy()
-      reject(
-        new Error(
-          `Failed to sync ${packageName}: Request timeout after ${timeout}ms`,
-        ),
-      )
-    })
-
-    req.end()
-  })
 }
 
 /**
@@ -201,7 +134,7 @@ async function syncPackageWithRetry(
         )
       }
 
-      await syncPackage2NpmMirror(packageName, options)
+      await syncPackageToRegistry(packageName, options)
 
       if (verbose && !silent) {
         console.log(c.green(`  ✓ ${packageName}`))
@@ -259,7 +192,7 @@ async function syncPackageWithRetry(
  *
  * @param input - package names
  * @param options - sync options {@link SyncOptions}
- * @returns a Promise with no resolved value
+ * @returns a Promise that resolves when syncing is complete
  *
  * @example
  *
@@ -276,7 +209,7 @@ async function syncPackageWithRetry(
 export async function syncNpmPackages(
   input: string | string[],
   options: SyncOptions,
-): Promise<void[]> {
+): Promise<void> {
   let packages = unique(toArray(input))
   const {
     silent,
@@ -305,7 +238,7 @@ export async function syncNpmPackages(
     if (!silent && verbose && cache) {
       console.log(c.green('All packages have been synced already!'))
     }
-    return []
+    return
   }
 
   if (!silent && verbose) {
@@ -316,7 +249,6 @@ export async function syncNpmPackages(
     )
   }
 
-  const results: void[] = []
   const errors: { package: string; error: Error }[] = []
   const executing: Promise<void>[] = []
   let completed = 0
@@ -350,7 +282,6 @@ export async function syncNpmPackages(
       })
 
     executing.push(promise)
-    results.push(promise as any)
 
     if (executing.length >= concurrency) {
       await Promise.race(executing)
@@ -370,15 +301,15 @@ export async function syncNpmPackages(
   }
 
   // Report errors
-  if (errors.length > 0 && !silent) {
-    console.log(c.red(`\n${errors.length} package(s) failed to sync:`))
-    for (const { package: pkg, error } of errors) {
-      console.log(c.red(`  - ${pkg}: ${error.message}`))
+  if (errors.length > 0) {
+    if (!silent) {
+      console.log(c.red(`\n${errors.length} package(s) failed to sync:`))
+      for (const { package: pkg, error } of errors) {
+        console.log(c.red(`  - ${pkg}: ${error.message}`))
+      }
     }
     throw new Error(`Failed to sync ${errors.length} package(s)`)
   }
-
-  return results
 }
 
 /**
@@ -465,7 +396,7 @@ export async function getValidPackageNames(
  */
 export async function syncNpmPackagesAuto(
   options: DetectOptions & SyncOptions,
-): Promise<void[]> {
+): Promise<void> {
   assertSyncTarget(options.target)
 
   const packages = await getValidPackageNames(options)

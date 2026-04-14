@@ -14,6 +14,11 @@ cli
   .option('--debug', 'Enable debug mode')
   .option('--cwd [cwd]', 'Current working directory')
   .option('--target [target]', 'The mirror site preset')
+  .option('--sync-method [syncMethod]', 'HTTP method for sync request')
+  .option(
+    '--sync-path-template [syncPathTemplate]',
+    'Request path template for custom target, supports {packageName}',
+  )
   .option('--ignore [ignore]', 'Ignore package.json pattern')
   .option('--include [include]', 'Additional packages to sync')
   .option('--exclude [exclude]', 'Exclude packages from being synced')
@@ -41,8 +46,11 @@ cli
   .help()
 
 cli.command('').action(async (options: Options) => {
+  let silent = Boolean(options.silent)
+
   try {
     const resolvedConfig = await resolveConfig(options)
+    silent = Boolean(resolvedConfig.silent)
 
     assertSyncTarget(resolvedConfig.target)
 
@@ -60,6 +68,9 @@ cli.command('').action(async (options: Options) => {
       return
     }
 
+    /**
+     * Print all detected packages in a user-friendly list.
+     */
     function printPackages() {
       console.log(c.dim('\nDetected packages to sync:'))
 
@@ -85,7 +96,7 @@ cli.command('').action(async (options: Options) => {
       console.log(c.green('\nSync successfully!'))
     }
   } catch (error) {
-    if (!options.silent) {
+    if (!silent) {
       console.error(c.red(String(error)))
 
       if (error instanceof Error && error.stack) {

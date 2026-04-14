@@ -13,6 +13,7 @@
     "changelogithub",
     "codecov",
     "esbuild",
+    "Fpkg",
     "lcov",
     "npmmirror",
     "oxfmt",

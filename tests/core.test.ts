@@ -250,9 +250,7 @@ describe('core', () => {
       }
 
       const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const writeSpy = vi
-        .spyOn(process.stdout, 'write')
-        .mockReturnValue(true)
+      const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
 
       try {
         await expect(

@@ -11,40 +11,35 @@ import { assertSyncTarget, isValidPublicPackage } from './utils'
 /**
  * node_modules must be ignored
  */
-const IGNORE_NODE_MODULES = '**/node_modules/**'
-
-/**
- * default patterns to be ignored
- */
-const DEFAULT_IGNORE = [
-  IGNORE_NODE_MODULES,
-  '**/.git/**',
-  '**/docs/**',
-  '**/tests/**',
-  '**/examples/**',
-  '**/fixtures/**',
-  '**/playground/**',
-]
-
-/**
- * glob pattern to match package.json files
- */
-const GLOB_PACKAGE_JSON = '**/package.json'
-
-/**
- * Default retry count
- */
-const DEFAULT_RETRY = 3
-
-/**
- * Default retry delay in milliseconds
- */
-const DEFAULT_RETRY_DELAY = 1000
-
-/**
- * Default concurrency limit
- */
-const DEFAULT_CONCURRENCY = 5
+const IGNORE_NODE_MODULES = '**/node_modules/**',
+  /**
+   * default patterns to be ignored
+   */
+  DEFAULT_IGNORE = [
+    IGNORE_NODE_MODULES,
+    '**/.git/**',
+    '**/docs/**',
+    '**/tests/**',
+    '**/examples/**',
+    '**/fixtures/**',
+    '**/playground/**',
+  ],
+  /**
+   * glob pattern to match package.json files
+   */
+  GLOB_PACKAGE_JSON = '**/package.json',
+  /**
+   * Default retry count
+   */
+  DEFAULT_RETRY = 3,
+  /**
+   * Default retry delay in milliseconds
+   */
+  DEFAULT_RETRY_DELAY = 1000,
+  /**
+   * Default concurrency limit
+   */
+  DEFAULT_CONCURRENCY = 5
 
 /**
  * Delay for a specified amount of time
@@ -60,9 +55,9 @@ function delay(ms: number): Promise<void> {
  */
 async function loadSyncCache(cacheDir: string): Promise<Set<string>> {
   try {
-    const cachePath = join(cacheDir, 'synced-packages.json')
-    const content = await readFile(cachePath, 'utf8')
-    const data = JSON.parse(content) as { packages: string[] }
+    const cachePath = join(cacheDir, 'synced-packages.json'),
+      content = await readFile(cachePath, 'utf8'),
+      data = JSON.parse(content) as { packages: string[] }
     return new Set(data.packages)
   } catch {
     return new Set()
@@ -80,11 +75,11 @@ async function saveSyncCache(
 ): Promise<void> {
   try {
     await mkdir(cacheDir, { recursive: true })
-    const cachePath = join(cacheDir, 'synced-packages.json')
-    const data = {
-      packages: Array.from(packages),
-      timestamp: new Date().toISOString(),
-    }
+    const cachePath = join(cacheDir, 'synced-packages.json'),
+      data = {
+        packages: Array.from(packages),
+        timestamp: new Date().toISOString(),
+      }
     await writeFile(cachePath, JSON.stringify(data, null, 2), 'utf8')
   } catch (error) {
     // Silently ignore cache write errors
@@ -105,9 +100,9 @@ async function syncPackageWithRetry(
   packageName: string,
   options: SyncOptions,
 ): Promise<void> {
-  const maxRetries = options.retry ?? DEFAULT_RETRY
-  const retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY
-  const { verbose, silent, debug, beforeSync, afterSync } = options
+  const maxRetries = options.retry ?? DEFAULT_RETRY,
+    retryDelay = options.retryDelay ?? DEFAULT_RETRY_DELAY,
+    { verbose, silent, debug, beforeSync, afterSync } = options
 
   try {
     // Call beforeSync hook
@@ -249,8 +244,8 @@ export async function syncNpmPackages(
     )
   }
 
-  const errors: { package: string; error: Error }[] = []
-  const executing: Promise<void>[] = []
+  const errors: { package: string; error: Error }[] = [],
+    executing: Promise<void>[] = []
   let completed = 0
 
   for (const pkg of packages) {
@@ -322,14 +317,14 @@ export async function getValidPackageNames(
   options: DetectOptions = {},
 ): Promise<string[]> {
   const {
-    cwd = process.cwd(),
-    defaultIgnore: useDefaultIgnore = true,
-    ignore: userIgnore = [],
-    include = [],
-    exclude = [],
-    withOptional = false,
-  } = options
-  const ignore = toArray(userIgnore)
+      cwd = process.cwd(),
+      defaultIgnore: useDefaultIgnore = true,
+      ignore: userIgnore = [],
+      include = [],
+      exclude = [],
+      withOptional = false,
+    } = options,
+    ignore = toArray(userIgnore)
 
   if (useDefaultIgnore) {
     ignore.push(...DEFAULT_IGNORE)
@@ -338,32 +333,30 @@ export async function getValidPackageNames(
   }
 
   const files = await glob(GLOB_PACKAGE_JSON, {
-    cwd,
-    ignore,
-    absolute: true,
-    onlyFiles: true,
-  })
-  const packages: string[] = [...toArray(include)]
-
-  const fileContents = await Promise.all(
-    files.map(async file => {
-      try {
-        const content = await readFile(file, 'utf8')
-        return JSON.parse(content) as PackageJson
-      } catch (error) {
-        // Ignore invalid JSON files
-        if (error instanceof Error) {
-          console.warn(
-            c.yellow(`Warning: Failed to parse ${file}: ${error.message}`),
-          )
-        }
-        return null
-      }
+      cwd,
+      ignore,
+      absolute: true,
+      onlyFiles: true,
     }),
-  )
-
-  // Use Set for better performance on exclude check
-  const excludeSet = new Set(toArray(exclude))
+    packages: string[] = [...toArray(include)],
+    fileContents = await Promise.all(
+      files.map(async file => {
+        try {
+          const content = await readFile(file, 'utf8')
+          return JSON.parse(content) as PackageJson
+        } catch (error) {
+          // Ignore invalid JSON files
+          if (error instanceof Error) {
+            console.warn(
+              c.yellow(`Warning: Failed to parse ${file}: ${error.message}`),
+            )
+          }
+          return null
+        }
+      }),
+    ),
+    // Use Set for better performance on exclude check
+    excludeSet = new Set(toArray(exclude))
 
   for (const packageJson of fileContents) {
     if (!packageJson) {

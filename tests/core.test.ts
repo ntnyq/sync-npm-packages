@@ -72,13 +72,13 @@ describe('core', () => {
 
     it('should detect multiple packages', async () => {
       const pkg1: PackageJson = {
-        name: 'test-package-1',
-        version: '1.0.0',
-      }
-      const pkg2: PackageJson = {
-        name: 'test-package-2',
-        version: '2.0.0',
-      }
+          name: 'test-package-1',
+          version: '1.0.0',
+        },
+        pkg2: PackageJson = {
+          name: 'test-package-2',
+          version: '2.0.0',
+        }
 
       await writeFile(join(testDir, 'package.json'), JSON.stringify(pkg1))
       await mkdir(join(testDir, 'packages', 'pkg2'), { recursive: true })
@@ -244,13 +244,12 @@ describe('core', () => {
 
     it('should reject regardless of silent mode', async () => {
       const base = {
-        target: 'npmmirror' as const,
-        registry: 'http://registry.example.com',
-        retry: 0,
-      }
-
-      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
+          target: 'npmmirror' as const,
+          registry: 'http://registry.example.com',
+          retry: 0,
+        },
+        logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}),
+        writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
 
       try {
         await expect(

@@ -38,8 +38,8 @@ describe('config', () => {
       const cliConfig: OptionalOptions = {
         target: 'npmmirror',
         cwd: '/test',
-      }
-      const result = await resolveConfig(cliConfig)
+      },
+       result = await resolveConfig(cliConfig)
       expect(result).toStrictEqual(cliConfig)
     })
 
@@ -47,8 +47,8 @@ describe('config', () => {
       const cliConfig: OptionalOptions = {
         target: 'npmmirror',
         dry: true,
-      }
-      const result = await resolveConfig(cliConfig)
+      },
+       result = await resolveConfig(cliConfig)
       expect(result.target).toBe('npmmirror')
       expect(result.dry).toBeTruthy()
     })
@@ -61,8 +61,8 @@ describe('config', () => {
     it('should handle partial cli config', async () => {
       const cliConfig: OptionalOptions = {
         target: 'npmmirror',
-      }
-      const result = await resolveConfig(cliConfig)
+      },
+       result = await resolveConfig(cliConfig)
       expect(result.target).toBe('npmmirror')
     })
   })

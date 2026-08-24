@@ -1,8 +1,8 @@
 import { request } from 'node:https'
 import type { SyncOptions } from './types'
 
-const DEFAULT_REQUEST_TIMEOUT = 10_000
-const DEFAULT_REGISTRY_HOST = 'registry.npmmirror.com'
+const DEFAULT_REQUEST_TIMEOUT = 10_000,
+ DEFAULT_REGISTRY_HOST = 'registry.npmmirror.com'
 
 /**
  * Check whether an IPv4 hostname belongs to private/local ranges.
@@ -72,8 +72,8 @@ export function normalizeRegistryHost(registry?: string): string {
     throw new Error('Registry host cannot be empty')
   }
 
-  const hasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//u.test(rawRegistry)
-  const url = hasScheme
+  const hasScheme = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//u.test(rawRegistry),
+   url = hasScheme
     ? new URL(rawRegistry)
     : new URL(`https://${rawRegistry}`)
 
@@ -177,9 +177,9 @@ export async function syncPackageToRegistry(
   packageName: string,
   options: SyncOptions,
 ): Promise<void> {
-  const timeout = options.timeout ?? DEFAULT_REQUEST_TIMEOUT
-  const registryHost = normalizeRegistryHost(options.registry)
-  const { method, path } = resolveSyncRequest(packageName, options)
+  const timeout = options.timeout ?? DEFAULT_REQUEST_TIMEOUT,
+   registryHost = normalizeRegistryHost(options.registry),
+   { method, path } = resolveSyncRequest(packageName, options)
 
   return new Promise<void>((resolve, reject) => {
     const req = request(

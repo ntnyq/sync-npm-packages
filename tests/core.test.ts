@@ -74,8 +74,8 @@ describe('core', () => {
       const pkg1: PackageJson = {
         name: 'test-package-1',
         version: '1.0.0',
-      }
-      const pkg2: PackageJson = {
+      },
+       pkg2: PackageJson = {
         name: 'test-package-2',
         version: '2.0.0',
       }
@@ -247,10 +247,10 @@ describe('core', () => {
         target: 'npmmirror' as const,
         registry: 'http://registry.example.com',
         retry: 0,
-      }
+      },
 
-      const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      const writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
+       logSpy = vi.spyOn(console, 'log').mockImplementation(() => {}),
+       writeSpy = vi.spyOn(process.stdout, 'write').mockReturnValue(true)
 
       try {
         await expect(

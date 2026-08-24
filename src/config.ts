@@ -22,26 +22,25 @@ export async function resolveConfig<T extends OptionalOptions = {}>(
   cliConfig: Partial<T> = {},
 ): Promise<Partial<T>> {
   const loader = createConfigLoader<T>({
-    sources: [
-      {
-        files: ['sync.config'],
-        extensions: ['mts', 'cts', 'ts', 'mjs', 'cjs', 'js', 'json'],
-      },
-      {
-        files: ['.syncrc'],
-        extensions: ['json'],
-      },
-    ],
-    cwd: process.cwd(),
-    merge: false,
-  }),
-   { config = {} } = await loader.load(),
-
-  // CLI config takes precedence over file config
-   mergedConfig: Partial<T> = {
-    ...config,
-    ...cliConfig,
-  }
+      sources: [
+        {
+          files: ['sync.config'],
+          extensions: ['mts', 'cts', 'ts', 'mjs', 'cjs', 'js', 'json'],
+        },
+        {
+          files: ['.syncrc'],
+          extensions: ['json'],
+        },
+      ],
+      cwd: process.cwd(),
+      merge: false,
+    }),
+    { config = {} } = await loader.load(),
+    // CLI config takes precedence over file config
+    mergedConfig: Partial<T> = {
+      ...config,
+      ...cliConfig,
+    }
 
   return mergedConfig
 }

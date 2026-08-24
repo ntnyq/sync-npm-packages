@@ -36,19 +36,19 @@ describe('config', () => {
   describe(resolveConfig, () => {
     it('should return cli config when no config file exists', async () => {
       const cliConfig: OptionalOptions = {
-        target: 'npmmirror',
-        cwd: '/test',
-      },
-       result = await resolveConfig(cliConfig)
+          target: 'npmmirror',
+          cwd: '/test',
+        },
+        result = await resolveConfig(cliConfig)
       expect(result).toStrictEqual(cliConfig)
     })
 
     it('should merge cli config with file config with cli taking precedence', async () => {
       const cliConfig: OptionalOptions = {
-        target: 'npmmirror',
-        dry: true,
-      },
-       result = await resolveConfig(cliConfig)
+          target: 'npmmirror',
+          dry: true,
+        },
+        result = await resolveConfig(cliConfig)
       expect(result.target).toBe('npmmirror')
       expect(result.dry).toBeTruthy()
     })
@@ -60,9 +60,9 @@ describe('config', () => {
 
     it('should handle partial cli config', async () => {
       const cliConfig: OptionalOptions = {
-        target: 'npmmirror',
-      },
-       result = await resolveConfig(cliConfig)
+          target: 'npmmirror',
+        },
+        result = await resolveConfig(cliConfig)
       expect(result.target).toBe('npmmirror')
     })
   })
